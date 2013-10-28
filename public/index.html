@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ArsenicLoggerApp">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>ArsenicLogger</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <style type="text/css">
+
+        body {
+            padding-top: 70px;
+        }
+
+        [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+            display: none !important;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div id="ArsenicLoggerContainer" ng-controller="ArsenicLoggerCtrl">
+
+    <div class="navbar navbar-default navbar-fixed-top" style="margin-right:0 !important">
+
+        <div class="container">
+
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="/"><img src="images/arsenic_evil_cat.png" style='margin-right: 5px; height:20px'/>ArsenicLogger</a>
+
+            <div class="nav">
+
+                <ul id='MenuItems' class="nav navbar-nav">
+                    <li id='AppsMenuItem' ng-class="{'hidden': isLoggedIn == false}"><a ng-click="setPage('dashboard')" href="">Dashboard</a></li>
+                    <li id='SettingsMenuItem' ng-class="{'hidden': isLoggedIn == false}"><a ng-click="setPage('settings')" href="">Settings</a></li>
+                </ul>
+
+                <ul class="nav navbar-nav pull-right">
+                    <li><img id="LoadingSpinner" ng-class="{'hidden': isLoading == false}" src="/images/spinner-logigreen.gif"/></li>
+                    <li ng-class="{'hidden': isLoggedIn == false}"><a href="#">{{username}}</a></li>
+                    <li ng-class="{'hidden': isLoggedIn == false}"><a href="/api/auth/logout">Logout</a></li>
+                </ul>
+
+
+            </div><!--/.nav-collapse -->
+
+        </div>
+
+    </div>
+
+    <div class="container" ng-cloak>
+
+        <div class="row">
+
+            <div class="col-md-12">
+
+                <div class="logMessage alert hidden">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <div class="logMessageContents"></div>
+                </div>
+
+                <div id="LoginPage" class="page-content" ng-cloak ng-class="{'hidden': isLoggedIn == true}" ng-controller="ArsenicLoggerLoginCtrl" ng-cloak>
+
+                    <h1>Login</h1>
+
+                    <p class="lead">Welcome to ArsenicLogger, the simple remote logging tool.</p>
+
+                    <form role="form" action="/api/auth/login" method="post">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Enter username">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg">Login</button>
+                        <button data-toggle="modal" href="#RegisterModal" class="btn btn-link">Register</button>
+                    </form>
+
+                    <!-- Register modal -->
+                    <div id='RegisterModal' class="modal fade">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                    <h4 class="modal-title">Register</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="help-block">Signup for an account!</p>
+                                    <div id="registerUsername" class="form-group">
+                                        <label class="control-label">Username</label>
+                                        <input type="text" class="form-control" placeholder="Choose a username" ng-model=newUser.username ng-change="onUpdateRegisterForm('username')">
+                                        <p id="registerUsernameStatus" class="text-danger hidden">Sorry, this username is already taken.</p>
+                                    </div>
+                                    <!--
+                                    <div class="form-group">
+                                        <label class="control-label">Company</label>
+                                        <input type="text" class="form-control"  placeholder="(Optional) Company or account name" ng-model=newUser.company ng-change="onUpdateRegisterForm('company')">
+                                    </div>
+                                    <div id="registerName" class="form-group">
+                                        <label class="control-label">Name</label>
+                                        <input type="text" class="form-control" placeholder="Enter your name (optional)" ng-model=newUser.name ng-change="onUpdateRegisterForm('name')">
+                                    </div>
+                                    -->
+                                    <div id="registerPassword1" class="form-group">
+                                        <label class="control-label">Password</label>
+                                        <input type="password" class="form-control" placeholder="Password" ng-model=newUser.password ng-change="onUpdateRegisterForm('password')">
+                                    </div>
+                                    <div id="registerPassword2" class="form-group">
+                                        <label class="control-label">Retype Password</label>
+                                        <input type="password" class="form-control" placeholder="Retype Password" ng-model=newUser.password2 ng-change="onUpdateRegisterForm('password2')">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                    <button id='registerUserButton' type="button" class="btn btn-danger" ng-click='registerUser()' disabled data-dismiss="modal">Register</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div id="DashboardPage" class="page-content" ng-class="{'hidden': selectedPage != 'dashboard'}" >
+                    <h3>Dashboard</h3>
+                </div>
+
+                <div id="SettingsPAge" class="page-content" ng-class="{'hidden': selectedPage != 'settings'}" >
+                    <h3>Settings</h3>
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+    </div><!-- /.container -->
+
+</div>
+
+
+<div id="ModalContainer"></div>
+
+<!-- Embed head.js into page for speed -->
+<script type="text/javascript">
+    (function(f,w){function m(){}function g(a,b){if(a){"object"===typeof a&&(a=[].slice.call(a));for(var c=0,d=a.length;c<d;c++)b.call(a,a[c],c)}}function v(a,b){var c=Object.prototype.toString.call(b).slice(8,-1);return b!==w&&null!==b&&c===a}function k(a){return v("Function",a)}function h(a){a=a||m;a._done||(a(),a._done=1)}function n(a){var b={};if("object"===typeof a)for(var c in a)a[c]&&(b={name:c,url:a[c]});else b=a.split("/"),b=b[b.length-1],c=b.indexOf("?"),b={name:-1!==c?b.substring(0,c):b,url:a};
+        return(a=p[b.name])&&a.url===b.url?a:p[b.name]=b}function q(a){var a=a||p,b;for(b in a)if(a.hasOwnProperty(b)&&a[b].state!==r)return!1;return!0}function s(a,b){b=b||m;a.state===r?b():a.state===x?d.ready(a.name,b):a.state===y?a.onpreload.push(function(){s(a,b)}):(a.state=x,z(a,function(){a.state=r;b();g(l[a.name],function(a){h(a)});j&&q()&&g(l.ALL,function(a){h(a)})}))}function z(a,b){var b=b||m,c;/\.css[^\.]*$/.test(a.url)?(c=e.createElement("link"),c.type="text/"+(a.type||"css"),c.rel="stylesheet",
+            c.href=a.url):(c=e.createElement("script"),c.type="text/"+(a.type||"javascript"),c.src=a.url);c.onload=c.onreadystatechange=function(a){a=a||f.event;if("load"===a.type||/loaded|complete/.test(c.readyState)&&(!e.documentMode||9>e.documentMode))c.onload=c.onreadystatechange=c.onerror=null,b()};c.onerror=function(){c.onload=c.onreadystatechange=c.onerror=null;b()};c.async=!1;c.defer=!1;var d=e.head||e.getElementsByTagName("head")[0];d.insertBefore(c,d.lastChild)}function i(){e.body?j||(j=!0,g(A,function(a){h(a)})):
+            (f.clearTimeout(d.readyTimeout),d.readyTimeout=f.setTimeout(i,50))}function t(){e.addEventListener?(e.removeEventListener("DOMContentLoaded",t,!1),i()):"complete"===e.readyState&&(e.detachEvent("onreadystatechange",t),i())}var e=f.document,A=[],B=[],l={},p={},E="async"in e.createElement("script")||"MozAppearance"in e.documentElement.style||f.opera,C,j,D=f.head_conf&&f.head_conf.head||"head",d=f[D]=f[D]||function(){d.ready.apply(null,arguments)},y=1,x=3,r=4;d.load=E?function(){var a=arguments,b=a[a.length-
+            1],c={};k(b)||(b=null);g(a,function(d,e){d!==b&&(d=n(d),c[d.name]=d,s(d,b&&e===a.length-2?function(){q(c)&&h(b)}:null))});return d}:function(){var a=arguments,b=[].slice.call(a,1),c=b[0];if(!C)return B.push(function(){d.load.apply(null,a)}),d;c?(g(b,function(a){if(!k(a)){var b=n(a);b.state===w&&(b.state=y,b.onpreload=[],z({url:b.url,type:"cache"},function(){b.state=2;g(b.onpreload,function(a){a.call()})}))}}),s(n(a[0]),k(c)?c:function(){d.load.apply(null,b)})):s(n(a[0]));return d};d.js=d.load;d.test=
+            function(a,b,c,e){a="object"===typeof a?a:{test:a,success:b?v("Array",b)?b:[b]:!1,failure:c?v("Array",c)?c:[c]:!1,callback:e||m};(b=!!a.test)&&a.success?(a.success.push(a.callback),d.load.apply(null,a.success)):!b&&a.failure?(a.failure.push(a.callback),d.load.apply(null,a.failure)):e();return d};d.ready=function(a,b){if(a===e)return j?h(b):A.push(b),d;k(a)&&(b=a,a="ALL");if("string"!==typeof a||!k(b))return d;var c=p[a];if(c&&c.state===r||"ALL"===a&&q()&&j)return h(b),d;(c=l[a])?c.push(b):l[a]=[b];
+        return d};d.ready(e,function(){q()&&g(l.ALL,function(a){h(a)});d.feature&&d.feature("domloaded",!0)});if("complete"===e.readyState)i();else if(e.addEventListener)e.addEventListener("DOMContentLoaded",t,!1),f.addEventListener("load",i,!1);else{e.attachEvent("onreadystatechange",t);f.attachEvent("onload",i);var u=!1;try{u=null==f.frameElement&&e.documentElement}catch(F){}u&&u.doScroll&&function b(){if(!j){try{u.doScroll("left")}catch(c){f.clearTimeout(d.readyTimeout);d.readyTimeout=f.setTimeout(b,50);
+        return}i()}}()}setTimeout(function(){C=!0;g(B,function(b){b()})},300)})(window);
+</script>
+
+
+<script type="text/javascript">
+
+    head.js(
+            "http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js",
+            "/libs/bootstrap/js/bootstrap.min.js",
+            "/libs/angular/angular.min.js",
+            "/libs/angular/angular-resource.min.js",
+            "/js/controllers/ArsenicLoggerModule.js",
+            "/js/controllers/ArsenicLoggerCtrl.js",
+            "/js/controllers/ArsenicLoggerLoginCtrl.js",
+            "/js/ArsenicLogger.js",
+            function(){
+                console.log("Loaded main dependencies");
+            }
+    );
+    
+</script>
+
+</body>
+</html>

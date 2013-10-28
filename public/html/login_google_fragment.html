@@ -1,0 +1,11 @@
+<div ng-controller="RedRocksAdminCtrl">
+
+    <form class="form-signin" style='width: 300px'>
+        <input type="email" class="input-block-level" placeholder="Account or Company name" ng-model="userinfo.company" required>
+        <input type="email" class="input-block-level" placeholder="Email address" ng-model="userinfo.email" required>
+        <input type="password" class="input-block-level" placeholder="Password" ng-model="userinfo.password">
+        <button class="btn btn-primary" type="submit" style='width:100%' ng-click='doLogin(userinfo)'>Sign in</button>
+    </form>
+
+</div>
+

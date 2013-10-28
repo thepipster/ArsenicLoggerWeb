@@ -1,0 +1,121 @@
+<div id="WidgetSettingsModal" class="modal fade" style="">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Widget Settings</h4>
+            </div>
+
+            <div class="modal-body">
+
+                <form role="form">
+
+                    <div class="form-group">
+                        <label for="widgetTitle">Widget Title</label>
+                        <input type="text" ng-model="selectedWidget.title" class="form-control" id="widgetTitle" placeholder="Enter Title">
+                    </div>
+
+                    <div ng-repeat="setting in selectedWidget.settings" class="form-group">
+
+                        <label>{{setting.label}}</label>
+
+                        &nbsp;<span ng-class="{'hidden': setting.type != 'array-object'}" class="badge">{{setting.values.length}}</span>
+
+                        <div ng-switch on="setting.type">
+
+                            <div ng-switch-when="string">
+                                <input type="text" ng-model="setting.value" ng-change="updateSetting(selectedWidget, setting)" class="form-control" placeholder="{{setting.hint}}">
+                            </div>
+
+                            <div ng-switch-when="password">
+                                <input type="password" ng-model="setting.value" class="form-control" placeholder="{{setting.hint}}">
+                            </div>
+
+                            <div ng-switch-when="string-rgb">
+                                <span>Color Selector not defined yet!</span>
+                            </div>
+
+                            <div ng-switch-when="array-object">
+
+                                <!--
+                                 You can have any number of these
+                                    element: {
+                                        targetLabel: "string",
+                                        color: "string-rgb",
+                                        title: "string"
+                                    }
+                                -->
+
+                                <button type="button" class="btn btn-success btn-sm" ng-click="addSettingArrayElement(setting)" style="margin-bottom:10px">
+                                    <span class="glyphicon glyphicon-plus"></span>
+                                    &nbsp;&nbsp;Add
+                                </button>
+
+                                <div ng-repeat="val in setting.values" class="panel panel-warning" style="padding:10px">
+
+                                    <div ng-repeat="element in val" class="form-group" style="margin-bottom: 5px; margin-top: 5px">
+
+                                        <div class="input-group input-group-sm">
+
+                                            <span class="input-group-addon">{{element.label}}</span>
+
+                                            <div ng-switch on="element.type">
+
+                                                <div ng-switch-when="string">
+                                                    <input type="text" class="form-control" ng-model=element.value placeholder="Enter {{element.label}}">
+                                                </div>
+
+                                                <div ng-switch-when="string-rgb">
+                                                    <input type="text" disabled class="form-control" ng-model=element.value placeholder="Color Selector not defined yet!">
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+
+                            </div>
+
+                        </div>
+
+                        <!--
+                        <logiwidgetinput id="widget_{{widget.id}}_{{setting.label}}" widget-id='widget.id' setting-src='setting'></logiwidgetinput>
+                        -->
+
+                    </div>
+
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="onSaveWidget(selectedWidget)">Save changes</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+
+    </div><!-- /.modal-dialog -->
+
+</div><!-- /.modal -->
+
+
+<script type="text/javascript">
+
+    $('#WidgetSettingsModal').modal('show').addClass('modal-big');
+
+    $('#WidgetSettingsModal').on('hidden', function () {
+        $('#WidgetSettingsModal').remove();
+        //$('#WidgetSettingsModalContainer').remove();
+    });
+
+</script>

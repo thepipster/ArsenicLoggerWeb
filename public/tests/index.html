@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="BlackHillsApp">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Logi | Black Hills</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/bootstrap/css/bootstrap-glyphicons.css" rel="stylesheet">
+
+    <style type="text/css">
+
+        body {
+            padding-top: 50px;
+        }
+
+        .starter-template {
+            padding: 40px 15px;
+            text-align: center;
+        }
+
+        .logi-page-content {
+            margin-top: 25px;
+        }
+
+            /* Canvas Page */
+
+        #CanvasSidebar {
+            min-height: 400px;
+            height: 100%;
+        }
+
+        #CanvasSidebar .widget-thumbnail {
+            display: inline-block;
+            height: 50px;
+            width: 50px;
+            margin: 5px;
+        }
+
+        #CanvasContents .widget-details-thumbnail {
+            display: inline-block;
+            height: 50px;
+            width: 50px;
+            margin: 5px;
+        }
+
+
+    </style>
+
+</head>
+
+<body>
+
+<div id="BlackHillsContainer" class="navbar navbar-inverse navbar-fixed-top" ng-controller="BlackHillsCtrl">
+
+    <div class="container">
+
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+
+        <a class="navbar-brand" href="/"><img src="/images/favicon.png" style='margin-right: 5px'/>Black Hills Tests</a>
+
+        <div class="nav-collapse collapse">
+
+            <ul id='MenuItems' class="nav navbar-nav">
+                <li id='HomeMenuItem' class="active"><a href="/">Home</a></li>
+                <li id='AppsMenuItem' ng-class="{'hidden': isLoggedIn == false}"><a onclick="BlackHills.onSelectPage('apps_page')" href="">Security Tests</a></li>
+            </ul>
+
+            <ul class="nav navbar-nav pull-right">
+                <li ng-class="{'hidden': isLoggedIn == false}"><a href="#">{{userinfo.name}}</a></li>
+                <li ng-class="{'hidden': isLoggedIn == true}"><a href="/auth/login/">Login</a></li>
+                <li ng-class="{'hidden': isLoggedIn == false}"><a href="/auth/logout/">Logout</a></li>
+            </ul>
+
+
+        </div><!--/.nav-collapse -->
+
+    </div>
+
+</div>
+
+<div class="container">
+
+    <div id="HomePage" class="starter-template logi-page-content">
+        <h1>BlackHills Prototype</h1>
+        <p class="lead">Welcome to the Black Hills Prototype. Login with a Google account!</p>
+    </div>
+
+</div><!-- /.container -->
+
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/bootstrap/js/bootstrap.min.js"></script>
+<script src="/angular/lib/angular/angular.min.js"></script>
+
+<script src="/js/controllers/BlackHillsModule.js"></script>
+<script src="/js/controllers/BlackHillsCtrl.js"></script>
+<script src="/js/BlackHills.js"></script>
+
+<script type="text/javascript">
+
+</script>
+
+</body>
+</html>

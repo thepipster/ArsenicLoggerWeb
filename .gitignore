@@ -1,0 +1,17 @@
+#node_modules
+public/uploads
+
+# IntelliJ
+
+.classpath
+.project
+.settings/
+.idea/
+*.iml
+*.iws
+.DS_Store
+log/
+target/
+
+# Sublime project files
+*.sublime*

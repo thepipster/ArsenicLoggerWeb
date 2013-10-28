@@ -1,0 +1,13 @@
+{
+    "name": "Carsenic",
+    "description": "Arsenic Soup's Communicator, Carsenic",
+    "version": "0.1.0",
+    "author": "Mike Pritchard",
+    "dependencies": {
+        "mysql" : "x",
+        "dateformat" : "x",
+        "callsite" : "x",
+        "mailparser" : "x",
+        "mimelib" : "x"
+    }
+}
