@@ -101,7 +101,7 @@ function AsLoggerLoginCtrl($scope, $rootScope, $http){
 
     $scope.registerUser = function(){
 
-        showActivity();
+        $rootScope.isLoading = true;
 
         var params = {
             company: $scope.newUser.company,
@@ -112,7 +112,7 @@ function AsLoggerLoginCtrl($scope, $rootScope, $http){
 
         $http.post('/api/user', params).success(function(data){
 
-            hideActivity();
+            $rootScope.isLoading = false;
 
             if (data.result == 'ok'){
                 ArsenicLogger.showMessage("Account created!", "success");
@@ -129,11 +129,11 @@ function AsLoggerLoginCtrl($scope, $rootScope, $http){
 
     $scope.onLogin = function(){
 
-        showActivity();
+        $rootScope.isLoading = true;
 
         $http.get('/api/user/login').success(function(data){
 
-            hideActivity();
+            $rootScope.isLoading = false;
 
             if (data.result != 'ok'){
                 ArsenicLogger.showMessage(data.error, "error");
