@@ -55,7 +55,7 @@ passport.use(new LocalStrategy(
 ));
 
 
-app.set('port', process.env.PORT || 8001);
+app.set('port', process.env.PORT || 3010);
 app.use(express.favicon(__dirname + '/public/images/favicon.png'));
 //app.use(express.logger('dev'));
 app.use(express.bodyParser());
