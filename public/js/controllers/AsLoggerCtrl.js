@@ -1,25 +1,45 @@
 
-function ArsenicLoggerCtrl($scope, $http, $compile){
-
-    function showActivity(){
-        $('#LoadingSpinner').show();
-    };
-
-    function hideActivity(){
-        $('#LoadingSpinner').hide();
-    };
+function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     // Default values...
-    $scope.isLoading = false;
+    $rootScope.isLoading = false;
+
+    $scope.accountInfo = '';
     $scope.username = '';
     $scope.isLoggedIn = false;
     $scope.selectedPage = '';
+    $scope.selectedTag = 'default';
 
-    // ////////////////////////////////////////////////////////////////////////////////
+    function getAccountInfo(){
 
-    $scope.setPage = function(page){
-        $scope.selectedPage = page;
+        $http.get('/api/account').success(function(data){
+
+            if (data.result == 'ok'){
+                $scope.accountInfo = data.account;
+            }
+            else {
+                console.error("Error getting account info");
+            }
+        });
+
     }
+
+    function getTags(){
+
+        $http.get('/api/tags').success(function(data){
+
+            if (data.result == 'ok'){
+                $scope.tags = data.tags;
+            }
+            else {
+                console.error("Error getting tags");
+            }
+        });
+
+    }
+
+    getAccountInfo();
+    getTags();
 
     // ////////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +54,7 @@ function ArsenicLoggerCtrl($scope, $http, $compile){
         $http.get('/api/auth/check').success(function(data){
 
             if (data.result == 'ok'){
+                $scope.apiKey = data.apiKey;
                 $scope.username = data.username;
                 $scope.isLoggedIn = true;
                 if ($scope.selectedPage == ''){
@@ -74,6 +95,10 @@ function ArsenicLoggerCtrl($scope, $http, $compile){
     };
     */
 
+    $scope.selectTag = function(tag){
+        $scope.selectedTag = tag;
+    }
+
     // ////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Support
@@ -81,23 +106,38 @@ function ArsenicLoggerCtrl($scope, $http, $compile){
     // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     $scope.loadHTMLFragment = function(targetDiv, pageFragmentURL){
-        showActivity();
+        $rootScope.isLoading = true;
         $http.get(pageFragmentURL).success(function(data){
-            hideActivity();
+            $rootScope.isLoading = false;
             $(targetDiv).html($compile(data)($scope));
         });
     };
 
-
-    $scope.currentPage = 'videos';
-
     /**
-     * Store the current page, options are; 'videos', 'stats', 'settings', 'users', 'billing'
+     * Store the current page, options are; 'dashboard', 'settings'
      * @param page
      */
-    $scope.onSelectPage = function(page){
-        $scope.currentPage = page;
+    $scope.setPage = function(page){
+
+        $scope.selectedPage = page;
+
+        $('#MenuItems li').removeClass('active');
+
+        switch(page){
+
+            case 'dashboard':
+                $('#AppsMenuItem').addClass('active');
+                $scope.loadHTMLFragment('#DashboardPage', 'html/dashboard-fragment.html');
+                break;
+
+            case 'settings':
+                $('#SettingsMenuItem').addClass('active');
+                $scope.loadHTMLFragment('#SettingsPage', 'html/settings-fragment.html');
+                break;
+        }
     }
+
+
 }
 
 

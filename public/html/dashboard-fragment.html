@@ -1,0 +1,43 @@
+
+<div class="" style='height:50px'>
+
+    <div class="btn-group pull-left">
+
+        <button type="button" disabled="disabled" class="btn btn-default">Filter By Tag</button>
+
+        <div class="btn-group">
+
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                {{selectedTag}}
+                <span class="caret"></span>
+            </button>
+
+            <ul class="dropdown-menu">
+
+                <!--
+                <li id="group-nav-item_all" class="group-nav-item">
+                    <a href="#" ng-click="selectTag({})">
+                        <span class="glyphicon glyphicon-tags"></span>&nbsp;&nbsp;All
+                    </a>
+                </li>
+
+                <li class="divider"></li>
+                -->
+
+                <li ng-repeat="tag in tags" class="group-nav-item">
+                    <a href="#" class="text-ellipsis" ng-click='selectTag(tag)'>
+                        <span class="glyphicon glyphicon-tag"></span>&nbsp;{{tag}}
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+
+    <!--
+        <button class='pull-left btn btn-primary' style='margin-left: 10px'>Make Group Paid</button>
+
+        <button class='pull-left btn btn-primary' style='margin-left: 10px'>Group Settings</button>
+    -->
+
+</div>

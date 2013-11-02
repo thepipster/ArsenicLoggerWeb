@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="ArsenicLoggerApp">
+<html lang="en" ng-app="AsLoggerApp">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +7,7 @@
     <meta name="author" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>ArsenicLogger</title>
+    <title>As[Logger]</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -22,13 +22,35 @@
             display: none !important;
         }
 
+        .periodic-symbol {
+            font-family: serif;
+            font-size: 20px;
+            padding: 2px;
+            margin-left: 5px;
+            margin-right: 2px;
+            color: white;
+            background-color: #8d8d8d;
+            border: 2px solid #808080;
+            /* .border-radius( 5px ); */
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            border-radius: 4px;
+        }
+
+        .text-ellipsis {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
     </style>
 
 </head>
 
 <body>
 
-<div id="ArsenicLoggerContainer" ng-controller="ArsenicLoggerCtrl">
+<div id="AsLoggerContainer" ng-controller="AsLoggerCtrl">
 
     <div class="navbar navbar-default navbar-fixed-top" style="margin-right:0 !important">
 
@@ -40,12 +62,12 @@
                 <span class="icon-bar"></span>
             </button>
 
-            <a class="navbar-brand" href="/"><img src="images/arsenic_evil_cat.png" style='margin-right: 5px; height:20px'/>ArsenicLogger</a>
+            <a class="navbar-brand" href="/"><span class='periodic-symbol'>As</span>Logger</a>
 
             <div class="nav">
 
                 <ul id='MenuItems' class="nav navbar-nav">
-                    <li id='AppsMenuItem' ng-class="{'hidden': isLoggedIn == false}"><a ng-click="setPage('dashboard')" href="">Dashboard</a></li>
+                    <li id='AppsMenuItem' class='selected' ng-class="{'hidden': isLoggedIn == false}"><a ng-click="setPage('dashboard')" href="">Dashboard</a></li>
                     <li id='SettingsMenuItem' ng-class="{'hidden': isLoggedIn == false}"><a ng-click="setPage('settings')" href="">Settings</a></li>
                 </ul>
 
@@ -73,7 +95,7 @@
                     <div class="logMessageContents"></div>
                 </div>
 
-                <div id="LoginPage" class="page-content" ng-cloak ng-class="{'hidden': isLoggedIn == true}" ng-controller="ArsenicLoggerLoginCtrl" ng-cloak>
+                <div id="LoginPage" class="page-content" ng-cloak ng-class="{'hidden': isLoggedIn == true}" ng-controller="AsLoggerLoginCtrl" ng-cloak>
 
                     <h1>Login</h1>
 
@@ -138,10 +160,9 @@
                 </div>
 
                 <div id="DashboardPage" class="page-content" ng-class="{'hidden': selectedPage != 'dashboard'}" >
-                    <h3>Dashboard</h3>
                 </div>
 
-                <div id="SettingsPAge" class="page-content" ng-class="{'hidden': selectedPage != 'settings'}" >
+                <div id="SettingsPage" class="page-content" ng-class="{'hidden': selectedPage != 'settings'}" >
                     <h3>Settings</h3>
                 </div>
 
@@ -178,9 +199,9 @@
             "/libs/bootstrap/js/bootstrap.min.js",
             "/libs/angular/angular.min.js",
             "/libs/angular/angular-resource.min.js",
-            "/js/controllers/ArsenicLoggerModule.js",
-            "/js/controllers/ArsenicLoggerCtrl.js",
-            "/js/controllers/ArsenicLoggerLoginCtrl.js",
+            "/js/controllers/AsLoggerModule.js",
+            "/js/controllers/AsLoggerCtrl.js",
+            "/js/controllers/AsLoggerLoginCtrl.js",
             "/js/ArsenicLogger.js",
             function(){
                 console.log("Loaded main dependencies");

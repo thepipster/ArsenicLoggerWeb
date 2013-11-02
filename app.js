@@ -8,7 +8,9 @@ var http = require('http');
 var path = require('path');
 var Logger = require('arsenic-logger');
 var User = require('./lib/models/User.js');
-var users = require('./lib/routes/users-api.js');
+var adminApi = require('./lib/routes/admin-api.js');
+var logApi = require('./lib/routes/logger-api.js');
+var usersApi = require('./lib/routes/users-api.js');
 var Settings = require('./lib/Settings.js'); // Holds global settings such as DB connection strings
 var MongoStore = require('connect-mongo')(express);
 var SecurityUtils = require('./lib/utils/SecurityUtils.js');
@@ -75,9 +77,17 @@ app.get('/api/', function(req, res){ res.send({result: "ok", json: true});});
 
 //app.get('/api/user/:userId', user);
 
+// Admin
+app.get('/api/account', adminApi.getAccountInfo);
+app.get('/api/logs/:sinceDate', adminApi.getLogs);
+app.get('/api/logs/:tag/:sinceDate', adminApi.getLogs);
+app.get('/api/tags', adminApi.getTags);
+
 // Authentication
-app.post('/api/user', users.registerUser);
-app.get('/api/user/checkusername/:username', users.checkUsername);
+app.post('/api/user', usersApi.registerUser);
+app.get('/api/user/checkusername/:username', usersApi.checkUsername);
+
+app.post('/api/log', logApi.addLogEntry);
 
 app.post('/api/auth/login', passport.authenticate('local', { successRedirect: '/', failureRedirect: '/' }));
 app.get('/api/auth/logout', function(req, res){ req.logout(); res.redirect('/');});

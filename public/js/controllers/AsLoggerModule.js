@@ -1,6 +1,6 @@
 
 // declare a new module, and inject the $compileProvider
-var ArsenicLoggerModule = angular.module('ArsenicLoggerApp', ['ngResource'], function($compileProvider) {
+var AsLoggerModule = angular.module('AsLoggerApp', ['ngResource'], function($compileProvider) {
 
     // configure new 'compile' directive by passing a directive
     // factory function. The factory function injects the '$compile'

@@ -1,17 +1,7 @@
-
-function ArsenicLoggerLoginCtrl($scope, $http){
-
-    function showActivity(){
-        $('#account_menu_spinner').show();
-    };
-
-    function hideActivity(){
-        $('#account_menu_spinner').hide();
-    };
+function AsLoggerLoginCtrl($scope, $rootScope, $http){
 
     // Default values...
     $scope.userinfo = {name: '', email: '', password: '', password_check: ''};
-
 
     // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
