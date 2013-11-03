@@ -79,6 +79,8 @@ app.get('/api/', function(req, res){ res.send({result: "ok", json: true});});
 
 // Admin
 app.get('/api/account', adminApi.getAccountInfo);
+
+// http://localhost:3010/api/logs/Wed%20Dec%2031%201969%2019:00:00%20GMT-0500%20(EST)
 app.get('/api/logs/:sinceDate', adminApi.getLogs);
 app.get('/api/logs/:tag/:sinceDate', adminApi.getLogs);
 app.get('/api/tags', adminApi.getTags);

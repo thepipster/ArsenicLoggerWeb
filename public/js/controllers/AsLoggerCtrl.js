@@ -8,7 +8,7 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
     $scope.username = '';
     $scope.isLoggedIn = false;
     $scope.selectedPage = '';
-    $scope.selectedTag = 'default';
+    $scope.selectedTag = 'all';
 
     function getAccountInfo(){
 
@@ -38,8 +38,96 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     }
 
-    getAccountInfo();
-    getTags();
+    // ////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Once a user is logged in, get all the data that we need
+     */
+    $scope.initialize = function(){
+
+        $scope.setPage('dashboard');
+
+        getAccountInfo();
+        getTags();
+
+        $scope.getLogs();
+
+    }
+
+    // ////////////////////////////////////////////////////////////////////////////////
+
+    $scope.lastSync = new Date(0);
+
+    $scope.getLogs = function(){
+
+        $rootScope.isLoading = true;
+
+        //app.get('/api/logs/:sinceDate', adminApi.getLogs);
+        //app.get('/api/logs/:tag/:sinceDate', adminApi.getLogs);
+
+        var url = '';
+
+        if ($scope.selectedTag == 'all'){
+            url = '/api/logs/' + $scope.lastSync.getTime();
+        }
+        else {
+            url = '/api/logs/' + $scope.selectedTag + '/' + $scope.lastSync.getTime();
+        }
+
+        console.log("Getting logs, lastSync = ("+$scope.lastSync.getTime()+") " + $scope.lastSync);
+        console.log(url);
+
+        $http.get(url).success(function(data){
+
+            $rootScope.isLoading = false;
+
+            if (data.result == 'ok'){
+                $scope.logs = data.logs;
+                setTimeout(function(){$('.logTooltip').tooltip();}, 250);
+            }
+            else {
+                console.error("Error getting logs");
+            }
+        });
+
+    };
+
+    var sampleLog = {
+        "tag": "LoggerTest",
+        "ip": "127.0.0.1",
+        "hostname": "metis.home",
+        "pid": 25529,
+        "cpu": 21.1,
+        "memory": 15941632,
+        "message": "fatal test ",
+        "accountId": "52755e0a6721dede61000001",
+        "_id": "52756da7d40faab863000002",
+        "__v": 0,
+        "modified": "2013-11-02T21:24:55.763Z",
+        "level": "fatal",
+        "stack": [
+            {
+                "functionName": "anonymous",
+                "fileName": "remote_test.js",
+                "line": 43
+            },
+            {
+                "functionName": "Module._compile",
+                "fileName": "module.js",
+                "line": 456
+            },
+            {
+                "functionName": "Module._extensions..js",
+                "fileName": "module.js",
+                "line": 474
+            },
+            {
+                "functionName": "Module.load",
+                "fileName": "module.js",
+                "line": 356
+            }
+        ]
+    }
 
     // ////////////////////////////////////////////////////////////////////////////////
 
@@ -53,12 +141,14 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
         $http.get('/api/auth/check').success(function(data){
 
+            //console.log('checkSession', data);
+
             if (data.result == 'ok'){
                 $scope.apiKey = data.apiKey;
                 $scope.username = data.username;
                 $scope.isLoggedIn = true;
                 if ($scope.selectedPage == ''){
-                    $scope.setPage('dashboard');
+                    $scope.initialize();
                 }
             }
             else {
@@ -66,7 +156,7 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
             }
         });
 
-    },
+    };
 
     // Check session is valid now
     $scope.checkSession();
@@ -97,6 +187,7 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     $scope.selectTag = function(tag){
         $scope.selectedTag = tag;
+        $scope.getLogs();
     }
 
     // ////////////////////////////////////////////////////////////////////////////////////////////////////////
