@@ -22,6 +22,10 @@
             display: none !important;
         }
 
+        #LoadingSpinner {
+            margin-top: 18px;
+        }
+
         .periodic-symbol {
             font-family: serif;
             font-size: 20px;
@@ -45,13 +49,18 @@
 
 
         .logItem {
-            margin: 4px;
+            margin: 5px;
             padding-top: 4px;
             padding-bottom: 4px;
         }
 
         .logItemDate {
             font-size: 10px;
+        }
+
+        .logItemIP {
+            font-size: 10px;
+            color: rgba(73, 73, 73, 0.5);
         }
 
     </style>
@@ -77,12 +86,13 @@
             <div class="nav">
 
                 <ul id='MenuItems' class="nav navbar-nav">
-                    <li id='AppsMenuItem' class='selected' ng-class="{'hidden': isLoggedIn == false}"><a ng-click="setPage('dashboard')" href="">Dashboard</a></li>
+                    <li id='LogsMenuItem' class='selected' ng-class="{'hidden': isLoggedIn == false}"><a ng-click="setPage('logs')" href="">Logs</a></li>
+                    <li id='UsageMenuItem' ng-class="{'hidden': isLoggedIn == false}"><a ng-click="setPage('usage')" href="">Usage</a></li>
                     <li id='SettingsMenuItem' ng-class="{'hidden': isLoggedIn == false}"><a ng-click="setPage('settings')" href="">Settings</a></li>
                 </ul>
 
                 <ul class="nav navbar-nav pull-right">
-                    <li><img id="LoadingSpinner" ng-class="{'hidden': isLoading == false}" src="/images/spinner-logigreen.gif"/></li>
+                    <li><img id="LoadingSpinner" ng-class="{'hidden': isLoading == false}" src="/images/spinner_bluegray.gif"/></li>
                     <li ng-class="{'hidden': isLoggedIn == false}"><a href="#">{{username}}</a></li>
                     <li ng-class="{'hidden': isLoggedIn == false}"><a href="/api/auth/logout">Logout</a></li>
                 </ul>
@@ -169,11 +179,13 @@
 
                 </div>
 
-                <div id="DashboardPage" class="page-content" ng-class="{'hidden': selectedPage != 'dashboard'}" >
+                <div id="LogsPage" class="page-content">
                 </div>
 
-                <div id="SettingsPage" class="page-content" ng-class="{'hidden': selectedPage != 'settings'}" >
-                    <h3>Settings</h3>
+                <div id="UsagePage" class="page-content">
+                </div>
+
+                <div id="SettingsPage" class="page-content">
                 </div>
 
             </div>

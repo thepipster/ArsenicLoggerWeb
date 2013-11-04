@@ -9,6 +9,33 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
     $scope.isLoggedIn = false;
     $scope.selectedPage = '';
     $scope.selectedTag = 'all';
+    $scope.selectedHost = 'all';
+    $scope.logLevel =  {value: 0, label: 'debug'};
+    $scope.logs = null;
+
+    $scope.logLevels = [
+        {value: 0, label: 'debug'},
+        {value: 1, label: 'info'},
+        {value: 2, label: 'warn'},
+        {value: 3, label: 'error'},
+        {value: 4, label: 'fatal'}
+    ];
+
+    $scope.levelTagToValue = function(label){
+        for (var i = 0; i<$scope.logLevels.length; i++){
+            if ($scope.logLevels[i].label == label){
+                return $scope.logLevels[i].value;
+            }
+        }
+    };
+
+    /**
+     * Check to see if the log level string is great than the current log level
+     * @param levelString
+     */
+    $scope.isLogLevelGreater = function(levelString){
+        return ($scope.levelTagToValue(levelString) >= $scope.logLevel.value);
+    }
 
     function getAccountInfo(){
 
@@ -38,6 +65,20 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     }
 
+    function getHosts(){
+
+        $http.get('/api/hosts').success(function(data){
+
+            if (data.result == 'ok'){
+                $scope.hosts = data.hosts;
+            }
+            else {
+                console.error("Error getting tags");
+            }
+        });
+
+    }
+
     // ////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -45,11 +86,13 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
      */
     $scope.initialize = function(){
 
-        $scope.setPage('dashboard');
+        $scope.setPage('logs');
 
         getAccountInfo();
         getTags();
+        getHosts();
 
+        $scope.getUsage();
         $scope.getLogs();
 
     }
@@ -74,16 +117,21 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
             url = '/api/logs/' + $scope.selectedTag + '/' + $scope.lastSync.getTime();
         }
 
-        console.log("Getting logs, lastSync = ("+$scope.lastSync.getTime()+") " + $scope.lastSync);
-        console.log(url);
-
         $http.get(url).success(function(data){
 
             $rootScope.isLoading = false;
 
             if (data.result == 'ok'){
-                $scope.logs = data.logs;
-                setTimeout(function(){$('.logTooltip').tooltip();}, 250);
+
+                if (!$scope.logs){
+                    $scope.logs = data.logs;
+                }
+                else {
+                    $scope.logs.concat(data.logs);
+                }
+
+                $scope.lastSync = new Date(); // Set sync date to now
+                setTimeout(function(){$('.logTooltip').tooltip({html:true});}, 250);
             }
             else {
                 console.error("Error getting logs");
@@ -92,6 +140,95 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     };
 
+    // ////////////////////////////////////////////////////////////////////////////////
+
+    $scope.lastUsageSync = new Date(0);
+
+    $scope.getUsage = function(){
+
+        $rootScope.isLoading = true;
+
+        var url = '/api/usage/' + $scope.lastUsageSync.getTime();
+
+        $http.get(url).success(function(data){
+
+            $rootScope.isLoading = false;
+
+            if (data.result == 'ok'){
+                $scope.usage = data.usage;
+                //console.log($scope.usage );
+                $scope.lastUsageSync = new Date(); // Set sync date to now
+            }
+            else {
+                console.error("Error getting usage");
+            }
+        });
+
+    };
+
+    $scope.getCPUData = function(){
+
+        var chartData = [];
+
+        for (var k=0; k<$scope.hosts.length; k++){
+
+            var series = {
+                values: getCPUDataForHost($scope.hosts[k]),
+                key: $scope.hosts[k]
+            };
+
+            chartData.push(series);
+
+        }
+
+        function getCPUDataForHost(host){
+            var data = [];
+            for (var i=0; i<$scope.usage.length; i++){
+                if ($scope.usage[i].hostname == host){
+                    var tm = new Date($scope.usage[i].time).getTime();
+                    var val = $scope.usage[i].cpu;
+                    data.push([tm, val]);
+                }
+            }
+            return data;
+        }
+
+        return chartData;
+    };
+
+    $scope.getMemoryData = function(){
+
+        var chartData = [];
+
+        for (var k=0; k<$scope.hosts.length; k++){
+
+            var series = {
+                values: getMemoryDataForHost($scope.hosts[k]),
+                key: $scope.hosts[k]
+            };
+
+            chartData.push(series);
+        }
+
+        function getMemoryDataForHost(host){
+
+            var data = [];
+
+            for (var i=0; i<$scope.usage.length; i++){
+                if ($scope.usage[i].hostname == host){
+                    var tm = new Date($scope.usage[i].time).getTime();
+                    var val = $scope.usage[i].memory / (1024*1024);
+                    data.push([tm, val]);
+                }
+            }
+            return data;
+        }
+
+        return chartData;
+    };
+
+
+    /*
     var sampleLog = {
         "tag": "LoggerTest",
         "ip": "127.0.0.1",
@@ -128,6 +265,7 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
             }
         ]
     }
+    */
 
     // ////////////////////////////////////////////////////////////////////////////////
 
@@ -153,6 +291,7 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
             }
             else {
                 $scope.isLoggedIn = false;
+                $scope.selectedPage = '';
             }
         });
 
@@ -163,37 +302,41 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Login!
-     */
-    /*
-    $scope.doLogin = function(){
-
-        showActivity();
-        $http.post('/api/v1.0/checkuser/', $scope.userinfo).success(function(data){
-            hideActivity();
-            if (data.result == 'ok'){
-                $scope.isLoggedIn = true;
-                getChannels();
-                HubMain.selectPage('videos');
-            }
-            else {
-                HubMain.showMessage(data.error, "error");
-            }
-        });
-
-    };
-    */
-
     $scope.selectTag = function(tag){
         $scope.selectedTag = tag;
         $scope.getLogs();
+    }
+
+    $scope.setLogLevel = function(level){
+        $scope.logLevel = level;
+    }
+
+    $scope.selectHost = function(host){
+        $scope.selectedHost = host;
     }
 
     // ////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Support
     //
+    // ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Convert a stack object to a human readable string
+     * @param stack
+     * @returns {string}
+     */
+    $scope.stackToString = function(stack){
+
+        var txt = "<div style='text-align: left; font-size: 10px; color: lightgreen'>";
+        stack.forEach(function(obj){
+            txt += obj.fileName + ":" + obj.line + ", "+ obj.functionName + "<br/>";
+        });
+        txt += "</div>";
+
+        return txt;
+    };
+
     // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     $scope.loadHTMLFragment = function(targetDiv, pageFragmentURL){
@@ -213,12 +356,18 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
         $scope.selectedPage = page;
 
         $('#MenuItems li').removeClass('active');
+        $('.page-content').empty();
 
         switch(page){
 
-            case 'dashboard':
-                $('#AppsMenuItem').addClass('active');
-                $scope.loadHTMLFragment('#DashboardPage', 'html/dashboard-fragment.html');
+            case 'logs':
+                $('#LogsMenuItem').addClass('active');
+                $scope.loadHTMLFragment('#LogsPage', 'html/logs-fragment.html');
+                break;
+
+            case 'usage':
+                $('#UsageMenuItem').addClass('active');
+                $scope.loadHTMLFragment('#UsagePage', 'html/usage-fragment.html');
                 break;
 
             case 'settings':

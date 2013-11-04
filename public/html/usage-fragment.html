@@ -1,0 +1,176 @@
+<div class="btn-toolbar" style='margin-bottom: 15px'>
+
+    <div class="btn-group">
+
+        <button type="button" disabled="disabled" class="btn btn-default">Host</button>
+
+        <div class="btn-group">
+
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                {{selectedHost}}
+                <span class="caret"></span>
+            </button>
+
+            <ul class="dropdown-menu">
+
+                <li class="group-nav-item">
+                    <a href="#" ng-click="selectHost('all')">
+                        All
+                    </a>
+                </li>
+
+                <li class="divider"></li>
+
+                <li ng-repeat="host in hosts" class="group-nav-item">
+                    <a href="#" class="text-ellipsis" ng-click='selectHost(host)'>
+                        {{host}}
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+
+    </div>
+
+    <button class='btn btn-default pull-right' style='margin-left: 10px' ng-click="getUsage()"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</button>
+
+</div>
+
+<div>
+
+    <div style="height:400px; width: 100%" id="MemoryChart">
+        <svg></svg>
+    </div>
+
+    <div style="height:400px; width: 100%" id="CPUChart">
+        <svg></svg>
+    </div>
+
+</div>
+
+<script>
+
+    // Make sure we have any dependencies
+    head.load("/libs/nvd3/src/nv.d3.css");
+
+    head.js("/libs/nvd3/lib/d3.v3.js",
+            "/libs/nvd3/nv.d3.js",
+            "/libs/nvd3/src/tooltip.js",
+            "/libs/nvd3/src/utils.js",
+            "/libs/nvd3/src/models/legend.js",
+            "/libs/nvd3/src/models/line.js", function(){
+                AsLoggerCharts.updateMemoryChart();
+                AsLoggerCharts.updateCPUChart();
+            });
+
+    var AsLoggerCharts = {
+
+        updateMemoryChart : function(){
+
+
+            nv.addGraph(function() {
+
+                var scope = angular.element(document.getElementById('AsLoggerContainer')).scope();
+                var data = scope.getMemoryData();
+
+                var chart = nv.models.stackedAreaChart()
+                        .x(function(d) { return d[0] })
+                        .y(function(d) { return d[1] })
+                        .clipEdge(true);
+
+                chart.xAxis
+                        .showMaxMin(false)
+                        .tickFormat(function(d) { return d3.time.format('%x')(new Date(d)) });
+
+                chart.yAxis
+                        .tickFormat(d3.format(',.2f'));
+
+                d3.select('#MemoryChart svg')
+                        .datum(data)
+                        .transition().duration(500).call(chart);
+
+                nv.utils.windowResize(chart.update);
+
+                return chart;
+            });
+
+        },
+
+        updateCPUChart : function(){
+
+            nv.addGraph(function() {
+
+                nv.addGraph(function() {
+
+                    var scope = angular.element(document.getElementById('AsLoggerContainer')).scope();
+                    var data = scope.getCPUData();
+
+                    var chart = nv.models.lineChart()
+                            .x(function(d) { return d[0] })
+                            .y(function(d) { return d[1] })
+                            .clipEdge(true);
+
+                    chart.xAxis
+                            .showMaxMin(false)
+                            .tickFormat(function(d) { return d3.time.format('%x')(new Date(d)) });
+
+                    chart.yAxis
+                            .axisLabel('CPU (%)')
+                            .tickFormat(d3.format('.02f'));
+
+                    d3.select('#CPUChart svg')
+                            .datum(data)
+                            .transition().duration(500)
+                            .call(chart);
+
+                    nv.utils.windowResize(chart.update);
+
+                    return chart;
+                });
+
+            });
+
+        }
+
+
+    }
+
+
+    /*
+    d3.json('stackedAreaData.json', function(data) {
+        nv.addGraph(function() {
+            var chart = nv.models.stackedAreaChart()
+                    .x(function(d) { return d[0] })
+                    .y(function(d) { return d[1] })
+                    .clipEdge(true);
+
+            chart.xAxis
+                    .tickFormat(function(d) { return d3.time.format('%x')(new Date(d)) });
+
+            chart.yAxis
+                    .tickFormat(d3.format(',.2f'));
+
+            d3.select('#chart svg')
+                    .datum(data)
+                    .transition().duration(500).call(chart);
+
+            nv.utils.windowResize(chart.update);
+
+            return chart;
+        });
+    })
+    */
+
+    /*
+     https://github.com/novus/nvd3/issues/26
+    function updateData(url) {
+        d3.json(url, function(jsondata) {
+            d3.select('#trendItemArea svg')
+                    .datum(jsondata)
+                    .transition().duration(500)
+                    .call(weeklyAreaChart);
+        });
+    }
+    */
+
+</script>
