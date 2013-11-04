@@ -61,7 +61,19 @@ app.use(express.favicon(__dirname + '/public/images/favicon.png'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(express.cookieParser('etasg234745king'));
-app.use(express.session());
+//app.use(express.session());
+app.use(express.session({
+    secret: Settings.cookieSecret,
+    maxAge: new Date(Date.now() + 3600000),
+    store: new MongoStore({
+        db: 'arseniclogger',
+        host: 'localhost',
+        port: 27017,  // optional, default: 27017
+        //username: 'admin', // optional
+        //password: 'secret', // optional
+        collection: 'sessions' // optional, default: sessions
+    })
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(app.router);
@@ -85,8 +97,10 @@ app.get('/api/account', adminApi.getAccountInfo);
 // http://localhost:3010/api/logs/Wed%20Dec%2031%201969%2019:00:00%20GMT-0500%20(EST)
 app.get('/api/usage/:sinceDate', adminApi.getUsage);
 //app.get('/api/usage/:host/:sinceDate', adminApi.getUsage);
-app.get('/api/logs/:sinceDate', adminApi.getLogs);
-app.get('/api/logs/:tag/:sinceDate', adminApi.getLogs);
+app.get('/api/logs', adminApi.getLogs);
+app.get('/api/logs/:page', adminApi.getLogs);
+app.get('/api/logs/:pageSize/:page', adminApi.getLogs);
+app.get('/api/logs/:tag/:pageSize/:page', adminApi.getLogs);
 app.get('/api/tags', adminApi.getTags);
 app.get('/api/hosts', adminApi.getHosts);
 

@@ -92,14 +92,38 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
         getTags();
         getHosts();
 
-        $scope.getUsage();
+        //$scope.getUsage();
         $scope.getLogs();
 
     }
 
     // ////////////////////////////////////////////////////////////////////////////////
 
-    $scope.lastSync = new Date(0);
+    $scope.currentLogPage = 1;
+    $scope.logPageSize = 25;
+    $scope.numberLogPages = 0;
+
+    $scope.incLoggerPage = function(){
+        $scope.currentLogPage++;
+        console.log($scope.currentLogPage + ", " + $scope.numberLogPages);
+        if ($scope.currentLogPage > $scope.numberLogPages) {
+            $scope.currentLogPage = $scope.numberLogPages;
+        }
+        else {
+            $scope.getLogs();
+        }
+    };
+
+    $scope.decLoggerPage = function(){
+        $scope.currentLogPage--;
+        console.log($scope.currentLogPage + ", " + $scope.numberLogPages);
+        if ($scope.currentLogPage < 1) {
+            $scope.currentLogPage = $scope.numberLogPages = 1;
+        }
+        else {
+            $scope.getLogs();
+        }
+    };
 
     $scope.getLogs = function(){
 
@@ -111,10 +135,10 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
         var url = '';
 
         if ($scope.selectedTag == 'all'){
-            url = '/api/logs/' + $scope.lastSync.getTime();
+            url = '/api/logs/' + $scope.logPageSize + '/' + $scope.currentLogPage;
         }
         else {
-            url = '/api/logs/' + $scope.selectedTag + '/' + $scope.lastSync.getTime();
+            url = '/api/logs/' +  $scope.logPageSize + '/' + $scope.selectedTag + '/' + $scope.currentLogPage;
         }
 
         $http.get(url).success(function(data){
@@ -122,15 +146,15 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
             $rootScope.isLoading = false;
 
             if (data.result == 'ok'){
+                $scope.logs = data.logs;
+                console.log($scope.logPageSize + ', ' + data.total);
 
-                if (!$scope.logs){
-                    $scope.logs = data.logs;
-                }
-                else {
-                    $scope.logs.concat(data.logs);
-                }
+                $scope.numberLogPages = Math.floor(data.total / $scope.logPageSize);
+                if (data.total % $scope.logPageSize > 0) $scope.numberLogPages++;
 
-                $scope.lastSync = new Date(); // Set sync date to now
+                console.log('Div = ' + (data.total / $scope.logPageSize));
+                console.log('Remainder = ' + ($scope.logPageSize % data.total));
+
                 setTimeout(function(){$('.logTooltip').tooltip({html:true});}, 250);
             }
             else {

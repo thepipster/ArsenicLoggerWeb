@@ -99,6 +99,25 @@
 </div>
 
 
+<div class="row" style="margin-bottom: 20px">
+
+    <div class="col-md-6">
+        <div class="input-group">
+            <span class="input-group-addon "><span class="glyphicon glyphicon-search"></span></span>
+            <input type="text" class="form-control" placeholder="">
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="btn-toolbar pull-right">
+            <button class="btn btn-default" ng-class="{'disabled': currentLogPage == numberLogPages}" ng-click="incLoggerPage()">&larr; Older</button>
+            <button class="btn btn-default" ng-class="{'disabled': currentLogPage == 1}" ng-click="decLoggerPage()">Newer &rarr;</button>
+        </div>
+    </div>
+
+</div>
+
+
 <!--
 
   var sampleLog = {
