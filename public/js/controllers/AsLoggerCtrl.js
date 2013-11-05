@@ -37,6 +37,29 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
         return ($scope.levelTagToValue(levelString) >= $scope.logLevel.value);
     }
 
+    $scope.version = 0;
+    $scope.environment = '';
+
+    /**
+     * Get the app version and environment
+     */
+    function getVersion(){
+
+        $http.get('/api/version').success(function(data){
+
+            if (data.result == 'ok'){
+                $scope.version = data.version;
+                $scope.environment = data.environment;
+            }
+            else {
+                console.error("Error getting account info");
+            }
+        });
+
+    };
+
+    getVersion();
+
     function getAccountInfo(){
 
         $http.get('/api/account').success(function(data){
@@ -460,7 +483,7 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
                 $scope.loadHTMLFragment('#SettingsPage', 'html/settings-fragment.html');
                 break;
         }
-    }
+    };
 
 
 }

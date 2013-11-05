@@ -89,6 +89,9 @@ if ('development' == app.get('env')) {
 // Heartbeat
 app.get('/api/', function(req, res){ res.send({result: "ok", json: true});});
 
+// Get version info
+app.get('/api/version', function(req, res){ var pjson = require('./package.json'); res.send({result: "ok", version: pjson.version, environment: process.env.NODE_ENV});})
+
 //app.get('/api/user/:userId', user);
 
 // Admin
