@@ -94,9 +94,6 @@ app.get('/api/', function(req, res){ res.send({result: "ok", json: true});});
 // Admin
 app.get('/api/account', adminApi.getAccountInfo);
 
-// http://localhost:3010/api/logs/Wed%20Dec%2031%201969%2019:00:00%20GMT-0500%20(EST)
-app.get('/api/usage/:sinceDate', adminApi.getUsage);
-//app.get('/api/usage/:host/:sinceDate', adminApi.getUsage);
 app.get('/api/logs', adminApi.getLogs);
 app.get('/api/logs/:page', adminApi.getLogs);
 app.get('/api/logs/:pageSize/:page', adminApi.getLogs);
@@ -110,7 +107,6 @@ app.get('/api/user/checkusername/:username', usersApi.checkUsername);
 
 // Logging
 app.post('/api/log', logApi.addLogEntry);
-app.post('/api/usage', logApi.addUsageData);
 
 app.post('/api/auth/login', passport.authenticate('local', { successRedirect: '/', failureRedirect: '/' }));
 app.get('/api/auth/logout', function(req, res){ req.logout(); res.redirect('/');});
