@@ -94,6 +94,8 @@ app.get('/api/', function(req, res){ res.send({result: "ok", json: true});});
 // Admin
 app.get('/api/account', adminApi.getAccountInfo);
 
+app.get('/api/stats', adminApi.getLogDiscUsage)
+app.delete('/api/logs', adminApi.deleteLogs);
 app.get('/api/logs', adminApi.getLogs);
 app.get('/api/logs/:page', adminApi.getLogs);
 app.get('/api/logs/:pageSize/:page', adminApi.getLogs);

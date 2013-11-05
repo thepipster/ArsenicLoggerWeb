@@ -92,6 +92,8 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
         getTags();
         getHosts();
 
+        $scope.getStorageUsage();
+
         //$scope.getUsage();
         $scope.getLogs();
 
@@ -161,6 +163,65 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
                 console.error("Error getting logs");
             }
         });
+
+    };
+
+    // ////////////////////////////////////////////////////////////////////////////////
+
+    $scope.deleteLogs = function(){
+
+        ArsenicLogger.confirmDialog({
+            message: "Are you sure, this can not be undone?",
+            onYes: function(){
+                $rootScope.isLoading = true;
+
+                $http.delete('/api/logs').success(function(data){
+
+                    $rootScope.isLoading = false;
+
+                    if (data.result == 'ok'){
+                        $scope.initialize();
+                    }
+                    else {
+                        console.error("Error deleting logs");
+                    }
+                });
+            }
+        });
+
+    }
+
+    // ////////////////////////////////////////////////////////////////////////////////
+
+    $scope.noDocuments = 0;
+    $scope.storageSize = 0;
+    $scope.dataSize = 0;
+
+    /**
+     * Get stats on the amount of storage size being used
+     */
+    $scope.getStorageUsage = function(){
+
+        //{"result":"ok","noDocs":13,"dataSize":7632,"storageSize":36864}
+
+        $rootScope.isLoading = true;
+
+        $http.get('/api/stats').success(function(data){
+
+            $rootScope.isLoading = false;
+
+            if (data.result == 'ok'){
+                $scope.noDocuments = data.noDocs;
+                $scope.storageSize = data.storageSize / (1024*1024);
+                $scope.dataSize = data.dataSize;
+                //console.log($scope.usage );
+                $scope.lastUsageSync = new Date(); // Set sync date to now
+            }
+            else {
+                console.error("Error getting storage usage");
+            }
+        });
+
 
     };
 

@@ -31,68 +31,43 @@ var ArsenicLogger = {
 
     // ////////////////////////////////////////////////////////////////////////////////
 
-    onSelectPage : function(page){
+    /**
+     * Show a confirmation dialog box
+     * @param {object} settings Setting object with the following fields (all are optional);
+     *     title - the dialog title
+     *     message - the dialog contents
+     *     onYes - the callback that is fired when the user clicks the 'yes' button
+     *     onNo - the callback that is fired when the user clicks the 'no' button
+     *     onYesTitle - if specified, set a custom message for the 'yes' button
+     *     onNoTitle - if specified, set a custom message for the 'no' button
+     */
+    confirmDialog : function(settings){
 
-        var menu_div = '';
-        var contents_div = '';
-        var html_fragment = '';
+        var title = settings.title || 'Confirm';
+        var message = settings.message || '';
+        var onYes = settings.onYes || '';
+        var onNo = settings.onNo || '';
+        var onYesTitle = settings.onYesTitle || 'Yes';
+        var onNoTitle = settings.onYesTitle || 'No';
 
-        $('.logi-page-content').hide();
+        $('#AsConfirmModal .modal-title').html(title);
+        $('#AsConfirmModal .modal-body').html(message);
 
-        switch(page){
+        $('#AsConfirmModalYesButton').unbind( "click" );
+        $('#AsConfirmModalNoButton').unbind( "click" );
 
-            case 'home_page':
-                contents_div = '#HomePage';
-                menu_div = '#HomeMenuItem';
-                html_fragment = 'html/home-fragment.html';
-                break;
+        $('#AsConfirmModalYesButton').html(onYesTitle);
+        $('#AsConfirmModalNoButton').html(onNoTitle);
 
-            case 'apps_page':
-                contents_div = '#AppsPage';
-                menu_div = '#AppsMenuItem';
-                html_fragment = 'html/apps-fragment.html';
-                break;
-
-            case 'canvas_page':
-                contents_div = '#CanvasPage';
-                menu_div = '#CanvasMenuItem';
-                html_fragment = 'html/canvas-fragment.html';
-                break;
-
-            case 'master_widget_page':
-                contents_div = '#MasterWidgetPage';
-                menu_div = '#MasterWidgetMenuItem';
-                html_fragment = 'html/master-widget-fragment.html';
-                break;
-
-            case 'manage_users_page':
-                contents_div = '#ManageUsersPage';
-                menu_div = '#ManageUsersMenuItem';
-                html_fragment = 'html/manage-users-fragment.html';
-                break;
-
-            case 'view_page':
-                contents_div = '#ViewPage';
-                menu_div = '#ViewMenuItem';
-                html_fragment = 'html/view-fragment.html';
-                break;
-
+        if ($.isFunction(onYes)){
+            $('#AsConfirmModalYesButton').click(onYes);
+        }
+        if ($.isFunction(onNo)){
+            $('#AsConfirmModalNoButton').click(onNo);
         }
 
-        $('#MenuItems li').removeClass('active');
-        $(menu_div).addClass('active');
+        $('#AsConfirmModal').modal('show');
 
-        //alert('[' + $(contents_div).html() + ']');
-        var scope = angular.element(document.getElementById('ArsenicLoggerContainer')).scope();
-
-        if ($(contents_div).html() == ''){
-            scope.loadHTMLFragment(contents_div, html_fragment);
-        }
-        else {
-            scope.$apply();
-        }
-
-        $(contents_div).show();
     },
 
     // ////////////////////////////////////////////////////////////////////////////////
