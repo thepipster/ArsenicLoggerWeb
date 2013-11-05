@@ -66,11 +66,8 @@ app.use(express.session({
     secret: Settings.cookieSecret,
     maxAge: new Date(Date.now() + 3600000),
     store: new MongoStore({
+        url: Logger.dbUrl,
         db: 'arseniclogger',
-        host: 'localhost',
-        port: 27017,  // optional, default: 27017
-        //username: 'admin', // optional
-        //password: 'secret', // optional
         collection: 'sessions' // optional, default: sessions
     })
 }));
