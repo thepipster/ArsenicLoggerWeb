@@ -166,19 +166,24 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
             url = '/api/logs/' +  $scope.logPageSize + '/' + $scope.selectedTag + '/' + $scope.currentLogPage;
         }
 
+        //console.log(url);
+
         $http.get(url).success(function(data){
 
             $rootScope.isLoading = false;
 
             if (data.result == 'ok'){
+
                 $scope.logs = data.logs;
                 console.log($scope.logPageSize + ', ' + data.total);
 
                 $scope.numberLogPages = Math.floor(data.total / $scope.logPageSize);
                 if (data.total % $scope.logPageSize > 0) $scope.numberLogPages++;
 
-                console.log('Div = ' + (data.total / $scope.logPageSize));
-                console.log('Remainder = ' + ($scope.logPageSize % data.total));
+                //console.log('Found ' + $scope.logs.length + ' logs');
+
+                //console.log('Div = ' + (data.total / $scope.logPageSize));
+                //console.log('Remainder = ' + ($scope.logPageSize % data.total));
 
                 setTimeout(function(){$('.logTooltip').tooltip({html:true});}, 250);
             }
