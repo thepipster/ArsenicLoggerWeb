@@ -154,21 +154,47 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
         $rootScope.isLoading = true;
 
-        //app.get('/api/logs/:sinceDate', adminApi.getLogs);
-        //app.get('/api/logs/:tag/:sinceDate', adminApi.getLogs);
+        //app.get('/api/logs/:level/:tag/:pageSize/:page/:host', adminApi.getLogs);
 
-        var url = '';
-
-        if ($scope.selectedTag == 'all'){
-            url = '/api/logs/' + $scope.logPageSize + '/' + $scope.currentLogPage;
-        }
-        else {
-            url = '/api/logs/' +  $scope.logPageSize + '/' + $scope.selectedTag + '/' + $scope.currentLogPage;
-        }
+        var url = '/api/logs/'+$scope.logLevel.label+'/'+$scope.selectedTag+'/'+$scope.logPageSize+'/'+$scope.currentLogPage+'/'+$scope.selectedHost;
 
         console.log(url);
 
         $http.get(url).success(function(data){
+
+            $rootScope.isLoading = false;
+
+            if (data.result == 'ok'){
+
+                $scope.logs = data.logs;
+                console.log($scope.logPageSize + ', ' + data.total);
+
+                $scope.numberLogPages = Math.floor(data.total / $scope.logPageSize);
+                if (data.total % $scope.logPageSize > 0) $scope.numberLogPages++;
+
+                //console.log('Found ' + $scope.logs.length + ' logs');
+
+                //console.log('Div = ' + (data.total / $scope.logPageSize));
+                //console.log('Remainder = ' + ($scope.logPageSize % data.total));
+
+                setTimeout(function(){$('.logTooltip').tooltip({html:true});}, 250);
+            }
+            else {
+                console.error("Error getting logs");
+            }
+        });
+
+    };
+
+    // ////////////////////////////////////////////////////////////////////////////////
+
+    $scope.searchTerm = "";
+
+    $scope.getLogsBySearch = function(){
+
+        $rootScope.isLoading = true;
+
+        $http.get('/api/search/'+$scope.searchTerm).success(function(data){
 
             $rootScope.isLoading = false;
 

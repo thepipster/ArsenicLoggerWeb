@@ -96,10 +96,12 @@ app.get('/api/account', adminApi.getAccountInfo);
 
 app.get('/api/stats', adminApi.getLogDiscUsage)
 app.delete('/api/logs', adminApi.deleteLogs);
+app.get('/api/search/:keyword', adminApi.searchLogs);
 app.get('/api/logs', adminApi.getLogs);
-app.get('/api/logs/:page', adminApi.getLogs);
-app.get('/api/logs/:pageSize/:page', adminApi.getLogs);
-app.get('/api/logs/:tag/:pageSize/:page', adminApi.getLogs);
+//app.get('/api/logs/:level', adminApi.getLogs);
+//app.get('/api/logs/:level/:tag', adminApi.getLogs);
+app.get('/api/logs/:level/:tag/:pageSize/:page', adminApi.getLogs);
+app.get('/api/logs/:level/:tag/:pageSize/:page/:host', adminApi.getLogs);
 app.get('/api/tags', adminApi.getTags);
 app.get('/api/hosts', adminApi.getHosts);
 
