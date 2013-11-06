@@ -166,7 +166,7 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
             url = '/api/logs/' +  $scope.logPageSize + '/' + $scope.selectedTag + '/' + $scope.currentLogPage;
         }
 
-        //console.log(url);
+        console.log(url);
 
         $http.get(url).success(function(data){
 
