@@ -101,7 +101,7 @@
                             .tickFormat(d3.format('.02f'));
 
                     d3.select('#chart svg')
-                            .datum(sinAndCos())
+                            .datum(data)
                             .transition().duration(500)
                             .call(chart);
 
