@@ -117,7 +117,6 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
         $scope.getStorageUsage();
 
-        //$scope.getUsage();
         $scope.getLogs();
 
     }
@@ -281,22 +280,36 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     // ////////////////////////////////////////////////////////////////////////////////
 
-    $scope.lastUsageSync = new Date(0);
+    $scope.chartMode = 'Memory Used (MB)';
 
-    $scope.getUsage = function(){
+    $scope.chartModes = [
+        'Total Memory Available (MB)',
+        'CPU Load',
+        'Memory Used (MB)',
+        'Memory Used (Percent of Available)'
+    ]
+
+    $scope.updateChartMode = function(mode){
+        $scope.chartMode = mode;
+        AsLoggerCharts.updateMemoryChart();
+    }
+
+    $scope.getMemoryData = function(callback){
 
         $rootScope.isLoading = true;
 
-        var url = '/api/usage/' + $scope.lastUsageSync.getTime();
+        var url = '/api/memory/'+$scope.logLevel.label+'/'+$scope.selectedTag+'/'+$scope.selectedHost;
+
+        console.log('getMemoryData - url = ' + url);
 
         $http.get(url).success(function(data){
 
             $rootScope.isLoading = false;
 
             if (data.result == 'ok'){
-                $scope.usage = data.usage;
+                $scope.usage = data.memoryUsage;
                 //console.log($scope.usage );
-                $scope.lastUsageSync = new Date(); // Set sync date to now
+                prepareMemoryData(callback);
             }
             else {
                 console.error("Error getting usage");
@@ -305,37 +318,7 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     };
 
-    $scope.getCPUData = function(){
-
-        var chartData = [];
-
-        for (var k=0; k<$scope.hosts.length; k++){
-
-            var series = {
-                values: getCPUDataForHost($scope.hosts[k]),
-                key: $scope.hosts[k]
-            };
-
-            chartData.push(series);
-
-        }
-
-        function getCPUDataForHost(host){
-            var data = [];
-            for (var i=0; i<$scope.usage.length; i++){
-                if ($scope.usage[i].hostname == host){
-                    var tm = new Date($scope.usage[i].time).getTime();
-                    var val = $scope.usage[i].cpu;
-                    data.push([tm, val]);
-                }
-            }
-            return data;
-        }
-
-        return chartData;
-    };
-
-    $scope.getMemoryData = function(){
+    function prepareMemoryData(callback){
 
         var chartData = [];
 
@@ -355,15 +338,24 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
             for (var i=0; i<$scope.usage.length; i++){
                 if ($scope.usage[i].hostname == host){
-                    var tm = new Date($scope.usage[i].time).getTime();
-                    var val = $scope.usage[i].memory / (1024*1024);
+                    var tm = new Date($scope.usage[i].modified).getTime();
+
+                    var val = 0;
+
+                    switch($scope.chartMode){
+                        case 'CPU Load': val = 100 * Math.floor($scope.usage[i].cpu); break;
+                        case 'Total Memory Available (MB)': val = $scope.usage[i].memoryTotal / (1024*1024); break;
+                        case 'Memory Used (MB)': val = $scope.usage[i].memory / (1024*1024); break;
+                        case 'Memory Used (Percent of Available)': val = Math.floor(100 * $scope.usage[i].memory / $scope.usage[i].memoryTotal); break;
+                    }
+
                     data.push([tm, val]);
                 }
             }
             return data;
         }
 
-        return chartData;
+        callback(chartData);
     };
 
 

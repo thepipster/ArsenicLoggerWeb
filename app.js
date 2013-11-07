@@ -105,6 +105,9 @@ app.get('/api/logs/:level/:tag/:pageSize/:page/:host', adminApi.getLogs);
 app.get('/api/tags', adminApi.getTags);
 app.get('/api/hosts', adminApi.getHosts);
 
+app.get('/api/memory/:level/:tag/:host', adminApi.getMemoryData);
+app.get('/api/memory/:level/:tag/:host/:pid', adminApi.getMemoryData);
+
 // Authentication
 app.post('/api/user', usersApi.registerUser);
 app.get('/api/user/checkusername/:username', usersApi.checkUsername);

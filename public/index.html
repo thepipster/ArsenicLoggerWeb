@@ -91,7 +91,7 @@
 
                 <ul id='MenuItems' class="nav navbar-nav">
                     <li id='LogsMenuItem' class='selected' ng-class="{'hidden': isLoggedIn == false}"><a ng-click="setPage('logs')" href="">Logs</a></li>
-                    <li id='UsageMenuItem' class='disabled' ng-class="{'hidden': isLoggedIn == false}"><a ng-click="setPage('usage')" href="">Usage</a></li>
+                    <li id='UsageMenuItem' ng-class="{'hidden': isLoggedIn == false}"><a ng-click="setPage('usage')" href="">Usage</a></li>
                     <li id='SettingsMenuItem' ng-class="{'hidden': isLoggedIn == false}"><a ng-click="setPage('settings')" href="">Settings</a></li>
                 </ul>
 

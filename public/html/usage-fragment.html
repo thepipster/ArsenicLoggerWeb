@@ -32,6 +32,28 @@
 
     </div>
 
+    <div class="btn-group">
+        <button type="button" disabled="disabled" class="btn btn-default">Chart</button>
+
+        <div class="btn-group">
+
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                {{chartMode}}
+                <span class="caret"></span>
+            </button>
+
+            <ul class="dropdown-menu">
+                <li ng-repeat="mode in chartModes" class="group-nav-item">
+                    <a href="#" class="text-ellipsis" ng-click='updateChartMode(mode)'>
+                        {{mode}}
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+
     <button class='btn btn-default pull-right' style='margin-left: 10px' ng-click="getUsage()"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</button>
 
 </div>
@@ -39,10 +61,6 @@
 <div>
 
     <div style="height:400px; width: 100%" id="MemoryChart">
-        <svg></svg>
-    </div>
-
-    <div style="height:400px; width: 100%" id="CPUChart">
         <svg></svg>
     </div>
 
@@ -60,52 +78,21 @@
             "/libs/nvd3/src/models/legend.js",
             "/libs/nvd3/src/models/line.js", function(){
                 AsLoggerCharts.updateMemoryChart();
-                AsLoggerCharts.updateCPUChart();
             });
 
     var AsLoggerCharts = {
 
         updateMemoryChart : function(){
 
+            var scope = angular.element(document.getElementById('AsLoggerContainer')).scope();
 
-            nv.addGraph(function() {
+            scope.getMemoryData(function(data){
 
-                var scope = angular.element(document.getElementById('AsLoggerContainer')).scope();
-                var data = scope.getMemoryData();
-
-                var chart = nv.models.stackedAreaChart()
-                        .x(function(d) { return d[0] })
-                        .y(function(d) { return d[1] })
-                        .clipEdge(true);
-
-                chart.xAxis
-                        .showMaxMin(false)
-                        .tickFormat(function(d) { return d3.time.format('%x')(new Date(d)) });
-
-                chart.yAxis
-                        .tickFormat(d3.format(',.2f'));
-
-                d3.select('#MemoryChart svg')
-                        .datum(data)
-                        .transition().duration(500).call(chart);
-
-                nv.utils.windowResize(chart.update);
-
-                return chart;
-            });
-
-        },
-
-        updateCPUChart : function(){
-
-            nv.addGraph(function() {
+                console.log(data);
 
                 nv.addGraph(function() {
 
-                    var scope = angular.element(document.getElementById('AsLoggerContainer')).scope();
-                    var data = scope.getCPUData();
-
-                    var chart = nv.models.lineChart()
+                    var chart = nv.models.stackedAreaChart()
                             .x(function(d) { return d[0] })
                             .y(function(d) { return d[1] })
                             .clipEdge(true);
@@ -115,13 +102,11 @@
                             .tickFormat(function(d) { return d3.time.format('%x')(new Date(d)) });
 
                     chart.yAxis
-                            .axisLabel('CPU (%)')
-                            .tickFormat(d3.format('.02f'));
+                            .tickFormat(d3.format(',.2f'));
 
-                    d3.select('#CPUChart svg')
+                    d3.select('#MemoryChart svg')
                             .datum(data)
-                            .transition().duration(500)
-                            .call(chart);
+                            .transition().duration(500).call(chart);
 
                     nv.utils.windowResize(chart.update);
 
@@ -129,6 +114,7 @@
                 });
 
             });
+
 
         }
 
