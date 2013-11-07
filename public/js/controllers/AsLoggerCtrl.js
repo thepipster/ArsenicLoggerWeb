@@ -338,8 +338,8 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
             for (var i=0; i<$scope.usage.length; i++){
                 if ($scope.usage[i].hostname == host){
-                    var tm = new Date($scope.usage[i].modified).getTime();
 
+                    var tm = new Date($scope.usage[i].modified).getTime();
                     var val = 0;
 
                     switch($scope.chartMode){
