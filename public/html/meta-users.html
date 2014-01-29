@@ -1,0 +1,60 @@
+
+<script type="text/javascript">
+   //head.js("js/controllers/AsLoggerUserCtrl.js");
+</script>
+
+<div ng-controller="AsLoggerUserCtrl">
+
+    <h4>Manage Users</h4>
+
+    <table class="table table-striped">
+        <tr>
+            <th>Username</th>
+            <th>Created (EST)</th>
+            <th>Last Login (EST)</th>
+            <th>Level</th>
+            <th>Status</th>
+        </tr>
+        <tr ng-repeat="user in users" valign="center">
+            <td>
+                <p class="text-info">{{user.username}}</p>
+            </td>
+            <td>
+                <p class="text-info">{{formatDate(user.created)}}</p>
+            </td>
+            <td>
+                <p class="text-info">{{formatDate(user.lastLogin)}}</p>
+            </td>
+            <td>
+
+                <div class="btn-group">
+                    <button type="button" class="btn  btn-sm btn-default dropdown-toggle" data-toggle="dropdown"  style="text-transform:capitalize;"
+                            ng-class="{ 'btn-danger' : user.level == 'super', 'btn-warning': user.level == 'admin', 'btn-warning': user.level == 'admin-owner', 'btn-success': user.level == 'developer', 'btn-warning': user.level == 'admin', 'btn-info': user.level == 'test'}">
+                        {{user.level}} <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#" ng-click="updateUserField(user, 'level', 'super')">Super</a></li>
+                        <li><a href="#" ng-click="updateUserField(user, 'level', 'admin')">Admin</a></li>
+                        <li><a href="#" ng-click="updateUserField(user, 'level', 'user')">User</a></li>
+                    </ul>
+                </div>
+
+            </td>
+            <td>
+                <div class="btn-group">
+                    <button type="button" class="btn  btn-sm dropdown-toggle" data-toggle="dropdown"  style="text-transform:capitalize;"
+                            ng-class="{ 'btn-success' : user.status == 'active', 'btn-danger': user.status == 'deleted'}">
+                        {{user.status}} <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#" ng-click="updateUserField(user, 'status', 'active')">Active</a></li>
+                        <li><a href="#" ng-click="updateUserField(user, 'status', 'deleted')">Deleted</a></li>
+                    </ul>
+                </div>
+
+            </td>
+        </tr>
+    </table>
+
+</div>
+

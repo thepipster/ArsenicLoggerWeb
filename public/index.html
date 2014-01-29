@@ -77,7 +77,7 @@
 
     <div class="navbar navbar-default navbar-fixed-top" style="margin-right:0 !important">
 
-        <div class="container">
+        <div class="container" ng-cloak>
 
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
                 <span class="icon-bar"></span>
@@ -90,6 +90,9 @@
             <div class="nav">
 
                 <ul id='MenuItems' class="nav navbar-nav">
+
+                    <li id='MetaUsersMenuItem' ng-class="{'hidden': isLoggedIn == false, 'hidden': userlevel != 'super'}"><a ng-click="setPage('metausers')" href="">Manage Users</a></li>
+
                     <li id='LogsMenuItem' class='selected' ng-class="{'hidden': isLoggedIn == false}"><a ng-click="setPage('logs')" href="">Logs</a></li>
                     <li id='UsageMenuItem' ng-class="{'hidden': isLoggedIn == false}"><a ng-click="setPage('usage')" href="">Usage</a></li>
                     <li id='SettingsMenuItem' ng-class="{'hidden': isLoggedIn == false}"><a ng-click="setPage('settings')" href="">Settings</a></li>
@@ -183,13 +186,16 @@
 
                 </div>
 
-                <div id="LogsPage" class="page-content">
+                <div id="LogsPage" class="page-content" >
                 </div>
 
                 <div id="UsagePage" class="page-content">
                 </div>
 
                 <div id="SettingsPage" class="page-content">
+                </div>
+
+                <div id="MetaUserManagement" class="page-content">
                 </div>
 
             </div>
@@ -240,6 +246,9 @@
         return}i()}}()}setTimeout(function(){C=!0;g(B,function(b){b()})},300)})(window);
 </script>
 
+<!--
+<script src="/socket.io/socket.io.js"></script>
+-->
 
 <script type="text/javascript">
 
@@ -248,8 +257,10 @@
             "/libs/bootstrap/js/bootstrap.min.js",
             "/libs/angular/angular.min.js",
             "/libs/angular/angular-resource.min.js",
+            "/libs/moment.min.js",
             "/js/controllers/AsLoggerModule.js",
             "/js/controllers/AsLoggerCtrl.js",
+            "/js/controllers/AsLoggerUserCtrl.js",
             "/js/controllers/AsLoggerLoginCtrl.js",
             "/js/ArsenicLogger.js",
             function(){

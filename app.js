@@ -14,9 +14,12 @@ var usersApi = require('./lib/routes/users-api.js');
 var Settings = require('./lib/Settings.js'); // Holds global settings such as DB connection strings
 var MongoStore = require('connect-mongo')(express);
 var SecurityUtils = require('./lib/utils/SecurityUtils.js');
-
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+
+//var io = require('socket.io');
+// see https://github.com/jfromaniello/passport.socketio
+
 
 var app = express();
 
@@ -48,7 +51,12 @@ passport.use(new LocalStrategy(
                 return done(null, false, { message: 'Incorrect password.' });
             }
 
-            return done(null, user);
+            user.lastLogin = new Date();
+            if (!user.created) user.created = new Date();
+            user.save(function(err){
+                return done(null, user);
+            });
+
         });
 
     }
@@ -97,11 +105,11 @@ app.get('/api/account', adminApi.getAccountInfo);
 app.get('/api/stats', adminApi.getLogDiscUsage)
 app.delete('/api/logs', adminApi.deleteLogs);
 app.get('/api/search/:keyword', adminApi.searchLogs);
-app.get('/api/logs', adminApi.getLogs);
+app.get('/api/logs/:lastSync', adminApi.getLogs);
 //app.get('/api/logs/:level', adminApi.getLogs);
 //app.get('/api/logs/:level/:tag', adminApi.getLogs);
-app.get('/api/logs/:level/:tag/:pageSize/:page', adminApi.getLogs);
-app.get('/api/logs/:level/:tag/:pageSize/:page/:host', adminApi.getLogs);
+app.get('/api/logs/:level/:tag/:lastSync', adminApi.getLogs);
+app.get('/api/logs/:level/:tag/:host/:lastSync', adminApi.getLogs);
 app.get('/api/tags', adminApi.getTags);
 app.get('/api/hosts', adminApi.getHosts);
 
@@ -115,17 +123,22 @@ app.get('/api/user/checkusername/:username', usersApi.checkUsername);
 // Logging
 app.post('/api/log', logApi.addLogEntry);
 
+// Meta admin
+app.get('/api/meta/users', usersApi.metaGetUsers);
+
 app.post('/api/auth/login', passport.authenticate('local', { successRedirect: '/', failureRedirect: '/' }));
 app.get('/api/auth/logout', function(req, res){ req.logout(); res.redirect('/');});
 app.get('/api/auth/check', function(req, res){
     if (req.user) {
-        res.send({result: "ok", username: req.user.username});
+        res.send({result: "ok", username: req.user.username, level: req.user.level});
     }
     else {
         res.send({result: "fail"});
     }
 });
 
-http.createServer(app).listen(app.get('port'), function(){
+var server = http.createServer(app).listen(app.get('port'), function(){
     Logger.info('Express server listening on port ' + app.get('port'));
 });
+
+// io = io.listen(server);

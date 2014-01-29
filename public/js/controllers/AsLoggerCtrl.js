@@ -11,7 +11,7 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
     $scope.selectedTag = 'all';
     $scope.selectedHost = 'all';
     $scope.logLevel =  {value: 0, label: 'debug'};
-    $scope.logs = null;
+    $scope.logs = [];
 
     $scope.logLevels = [
         {value: 0, label: 'debug'},
@@ -102,6 +102,24 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     }
 
+    /**
+    * Timer to get whatever data is relevant based on current page
+    */
+    setInterval(function(){
+        if ($scope.selectedPage == 'logs'){
+            //console.log('getting logs');
+            $scope.getLogs()            
+        }
+    }, 5000);
+
+    setInterval(function(){
+        if ($scope.selectedPage == 'logs'){
+            getTags();
+            getHosts();
+        }
+    }, 30000);
+
+
     // ////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -149,24 +167,27 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
         }
     };
 
+    $scope.lastSync = new Date(0);
+
     $scope.getLogs = function(){
 
         $rootScope.isLoading = true;
 
         //app.get('/api/logs/:level/:tag/:pageSize/:page/:host', adminApi.getLogs);
 
-        var url = '/api/logs/'+$scope.logLevel.label+'/'+$scope.selectedTag+'/'+$scope.logPageSize+'/'+$scope.currentLogPage+'/'+$scope.selectedHost;
-
-        console.log(url);
+        //var url = '/api/logs/'+$scope.logLevel.label+'/'+$scope.selectedTag+'/'+$scope.logPageSize+'/'+$scope.currentLogPage+'/'+$scope.selectedHost+'/'+$scope.lastSync;
+        var url = '/api/logs/'+$scope.logLevel.label+'/'+$scope.selectedTag+'/'+$scope.selectedHost+'/'+$scope.lastSync;
+        var queryTime = new Date();
 
         $http.get(url).success(function(data){
 
             $rootScope.isLoading = false;
+            $scope.lastSync = queryTime;
 
             if (data.result == 'ok'){
 
-                $scope.logs = data.logs;
-                console.log($scope.logPageSize + ', ' + data.total);
+                $scope.logs = $scope.logs.concat(data.logs);
+                //console.log($scope.logPageSize + ', ' + data.total);
 
                 $scope.numberLogPages = Math.floor(data.total / $scope.logPageSize);
                 if (data.total % $scope.logPageSize > 0) $scope.numberLogPages++;
@@ -410,11 +431,12 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
         $http.get('/api/auth/check').success(function(data){
 
-            //console.log('checkSession', data);
+            console.log('checkSession', data);
 
             if (data.result == 'ok'){
                 $scope.apiKey = data.apiKey;
                 $scope.username = data.username;
+                $scope.userlevel = data.level;
                 $scope.isLoggedIn = true;
                 if ($scope.selectedPage == ''){
                     $scope.initialize();
@@ -501,6 +523,11 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
                 $scope.loadHTMLFragment('#UsagePage', 'html/usage-fragment.html');
                 break;
 
+            case 'metausers':
+                $('#MetaUsersMenuItem').addClass('active');
+                $scope.loadHTMLFragment('#MetaUserManagement', 'html/meta-users.html');
+                break;
+
             case 'settings':
                 $('#SettingsMenuItem').addClass('active');
                 $scope.loadHTMLFragment('#SettingsPage', 'html/settings-fragment.html');
@@ -508,7 +535,19 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
         }
     };
 
+    // ///////////////////////////////////////////////////////////////////////////////////////
 
+    $rootScope.formatDate = function(date){
+        if (!date) date = new Date(0);
+        return moment(date).format('MMM Do YYYY, h:mm a');
+    }
+
+    // ///////////////////////////////////////////////////////////////////////////////////////
+
+    $rootScope.formatTime = function(date){
+        if (!date) date = new Date(0);
+        return moment(date).format('h:mm:ss a');
+    }
 }
 
 

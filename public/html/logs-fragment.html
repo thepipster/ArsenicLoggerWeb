@@ -94,7 +94,7 @@
 
     </div>
 
-    <button class='btn btn-default pull-right' style='margin-left: 10px' ng-click="initialize()"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</button>
+    <button class='btn btn-default pull-right' style='margin-left: 10px' ng-click="getLogs()"><span class="glyphicon glyphicon-refresh"></span>&nbsp;{{lastSync | date:'HH:mm:ss'}}</button>
 
 </div>
 
@@ -109,10 +109,12 @@
     </div>
 
     <div class="col-md-6">
+    <!--
         <div class="btn-toolbar pull-right">
             <button class="btn btn-default" ng-class="{'disabled': currentLogPage == numberLogPages}" ng-click="incLoggerPage()">&larr; Older</button>
             <button class="btn btn-default" ng-class="{'disabled': currentLogPage == 1}" ng-click="decLoggerPage()">Newer &rarr;</button>
         </div>
+        -->
     </div>
 
 </div>
@@ -167,21 +169,21 @@
 
         <div class="row">
 
-            <div class="col-md-1">
+            <div class="col-md-2" style="overflow:hidden">
                 <span class="label label-primary">{{log.hostname}}</span>
                 <span class="text-info" style='font-size: 10px'>{{log.tag}}</span>
                 <br/>
                 <span class="logItemIP text-muted">{{log.ip}}</span>
             </div>
 
-            <div class="col-md-9">
+            <div class="col-md-8">
                 {{log.message}}
             </div>
 
             <div class="col-md-2">
                 <a href="#" class="text-muted logTooltip" data-toggle="tooltip" title="{{stackToString(log.stack)}}">{{log.stack[0].fileName}}, {{log.stack[0].line}}</a>
                 <br/>
-                <span class='logItemDate'>{{log.modified | date:'HH:mm:ss MM/dd/yyyy  (Z)'}}</span>
+                <span class='logItemDate'>{{log.modified | date:'HH:mm:ss MM/dd/yyyy (Z)'}}</span>
             </div>
 
         </div>

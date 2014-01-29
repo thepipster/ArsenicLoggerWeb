@@ -6,13 +6,13 @@
         <div class="col-lg-6">
             <div class="form-group">
                 <label>Company</label>
-                <input class="form-control" type="text" placeholder="App Name" style="width:100%" ng-model="accountInfo.company" ng-change="onUpdateSetting()"/>
+                <input class="form-control" type="text" placeholder="App Name" style="width:100%" ng-model="accountInfo.company" ng-change="onUpdateSetting()" />
             </div>
         </div>
         <div class="col-lg-6">
             <div class="form-group">
                 <label>Storage Used (MB)</label>
-                <input class="form-control" disabled type="text" placeholder="" style="width:100%" value="{{storageSize | number:4}}"/>
+                <input class="form-control" disabled type="text" placeholder="" style="width:100%" value="{{storageSize | number:4}}" />
             </div>
         </div>
     </div>
@@ -24,8 +24,66 @@
 
     <div class="row" style="margin-top: 20px">
         <div class="col-lg-6">
-            <button class="btn btn-danger" ng-click="deleteLogs()"><span class="glyphicon glyphicon-fire"></span> Delete All Logs</button>
+            <button class="btn btn-danger" ng-click="deleteLogs()">
+                <span class="glyphicon glyphicon-fire"></span>Delete All Logs</button>
         </div>
     </div>
 
+
+    <!-- Nav tabs -->
+    <div style='margin-top:40px'>
+
+        <p class="text-info">Sample Code</p>
+
+        <ul id="CodeSampleTabs" class="nav nav-tabs">
+            <li><a href="#tab_node" data-toggle="tab">Node.js</a></li>
+            <!--
+            <li><a href="#tab_api" data-toggle="tab">Direct</a></li>
+            -->
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+
+            <div class="tab-pane active" id="tab_node">
+                <pre style='margin:20px'>
+                    var Logger = require('arsenic-logger'); 
+                    Logger.useArsenicLogger('{{accountInfo.apiKey}}', 'MY-TAG');
+                </pre>
+            </div>
+
+            <div class="tab-pane" id="tab_api">
+
+            </div>
+
+        </div>
+
+    </div>
+    <!--
+     
+    <p style='margin-top:40px'>Node.js</p>
+    <div id='nodejs_sample' style='margin-top:40px; height: 200px;'>
+        var Logger = require('arsenic-logger');
+        Logger.useArsenicLogger('{{accountInfo.apiKey}}', 'MY-TAG');
+    </div>
+-->
+
 </div>
+
+<script>
+$('#CodeSampleTabs a').click(function (e) {
+  e.preventDefault()
+  $(this).tab('show')
+})
+</script>
+
+<!--
+<script src="libs/ace/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+
+<script>
+    var editor = ace.edit("nodejs_sample");
+    editor.setTheme("ace/theme/monokai");
+    editor.setReadOnly(true);  
+    editor.getSession().setMode("ace/mode/javascript");
+</script>
+-->

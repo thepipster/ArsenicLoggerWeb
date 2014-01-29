@@ -1,7 +1,7 @@
 function AsLoggerLoginCtrl($scope, $rootScope, $http){
 
     // Default values...
-    $scope.userinfo = {name: '', email: '', password: '', password_check: ''};
+    $scope.userinfo = {level: 'user', name: '', email: '', password: '', password_check: ''};
 
     // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
