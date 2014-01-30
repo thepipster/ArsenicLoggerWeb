@@ -8,13 +8,13 @@
   "description": "",
   "main": "app.js",
   "dependencies": {
-    "arsenic-logger": "~0.0.6",
-    "connect-mongo": "~0.3.3",
-    "express": "~3.4.0",
-    "mongoose": "~3.6.20",
+    "arsenic-logger": "x",
+    "connect-mongo": "x",
+    "express": "x",
+    "mongoose": "x",
     "mongoose-text-search": "x",
-    "passport": "~0.1.17",
-    "passport-local": "~0.1.6"
+    "passport": "x",
+    "passport-local": "x"
   },
   "engines": {
     "node": "0.10.x"

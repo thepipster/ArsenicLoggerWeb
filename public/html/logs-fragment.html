@@ -163,7 +163,7 @@
     -->
 
 
-<div ng-repeat="log in logs" ng-class="{'hidden': !isLogLevelGreater(log.level) }">
+<div ng-repeat="log in logs" class="animate-logs" ng-class="{'hidden': !isLogLevelGreater(log.level) }">
 
     <div class="logItem alert" ng-class="{'alert-success': log.level == 'debug', 'alert-info': log.level == 'info', 'alert-warning': log.level == 'warn', 'alert-danger': log.level == 'error' || log.level == 'fatal'}">
 

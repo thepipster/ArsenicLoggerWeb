@@ -11,7 +11,7 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
     $scope.selectedTag = 'all';
     $scope.selectedHost = 'all';
     $scope.logLevel =  {value: 0, label: 'debug'};
-    $scope.logs = [];
+    $rootScope.logs = [];
 
     $scope.logLevels = [
         {value: 0, label: 'debug'},
@@ -186,13 +186,21 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
             if (data.result == 'ok'){
 
-                $scope.logs = $scope.logs.concat(data.logs);
+                // Keep the list under control by removing any entries over the maximum number
+                if ($rootScope.logs.length > 100){
+                    for (var i=100; i<$rootScope.logs.length; i++){
+                        $rootScope.logs.pop(i);    
+                    }
+                }
+
+                $rootScope.logs = data.logs.concat($rootScope.logs);
+
                 //console.log($scope.logPageSize + ', ' + data.total);
 
                 $scope.numberLogPages = Math.floor(data.total / $scope.logPageSize);
                 if (data.total % $scope.logPageSize > 0) $scope.numberLogPages++;
 
-                //console.log('Found ' + $scope.logs.length + ' logs');
+                //console.log('Found ' + $rootScope.logs.length + ' logs');
 
                 //console.log('Div = ' + (data.total / $scope.logPageSize));
                 //console.log('Remainder = ' + ($scope.logPageSize % data.total));
@@ -220,13 +228,13 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
             if (data.result == 'ok'){
 
-                $scope.logs = data.logs;
+                $rootScope.logs = data.logs;
                 console.log($scope.logPageSize + ', ' + data.total);
 
                 $scope.numberLogPages = Math.floor(data.total / $scope.logPageSize);
                 if (data.total % $scope.logPageSize > 0) $scope.numberLogPages++;
 
-                //console.log('Found ' + $scope.logs.length + ' logs');
+                //console.log('Found ' + $rootScope.logs.length + ' logs');
 
                 //console.log('Div = ' + (data.total / $scope.logPageSize));
                 //console.log('Remainder = ' + ($scope.logPageSize % data.total));
@@ -254,6 +262,7 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
                     $rootScope.isLoading = false;
 
                     if (data.result == 'ok'){
+                        $rootScope.logs = [];
                         $scope.initialize();
                     }
                     else {

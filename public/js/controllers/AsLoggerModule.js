@@ -1,6 +1,5 @@
-
 // declare a new module, and inject the $compileProvider
-var AsLoggerModule = angular.module('AsLoggerApp', ['ngResource'], function($compileProvider) {
+var AsLoggerModule = angular.module('AsLoggerApp', ['ngAnimate', 'ngResource'], function($compileProvider) {
 
     // configure new 'compile' directive by passing a directive
     // factory function. The factory function injects the '$compile'
@@ -29,16 +28,53 @@ var AsLoggerModule = angular.module('AsLoggerApp', ['ngResource'], function($com
     })
 });
 
-AsLoggerModule.directive('ngEnter', function () {
-    return function (scope, element, attrs) {
-        element.bind("keydown keypress", function (event) {
-            if(event.which === 13) {
-                scope.$apply(function (){
+AsLoggerModule.directive('ngEnter', function() {
+    return function(scope, element, attrs) {
+        element.bind("keydown keypress", function(event) {
+            if (event.which === 13) {
+                scope.$apply(function() {
                     scope.$eval(attrs.ngEnter);
                 });
 
                 event.preventDefault();
             }
         });
+    };
+});
+
+AsLoggerModule.animation('.animate-logs', function() {
+    return {
+        enter: function(element, done) {
+            $(element).css({
+                position: 'relative',
+                left: -1000,
+                opacity: 0
+            });
+            $(element).animate({
+                left: 0,
+                opacity: 1
+            }, done);
+        },
+
+        leave: function(element, done) {
+            $(element).css({
+                position: 'relative',
+                left: 0,
+                opacity: 1
+            });
+            $(element).animate({
+                left: -1000,
+                opacity: 0
+            }, done);
+        },
+
+        move: function(element, done) {
+            $(element).css({
+                opacity: 0.5
+            });
+            $(element).animate({
+                opacity: 1
+            }, done);
+        }
     };
 });
