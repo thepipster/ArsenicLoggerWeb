@@ -8,6 +8,7 @@
         "dateformat" : "x",
         "callsite" : "x",
         "mailparser" : "x",
-        "mimelib" : "x"
+        "mimelib" : "x",
+        "nodemailer" : "x"
     }
 }
