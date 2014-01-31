@@ -1,5 +1,4 @@
-
-function AsLoggerCtrl($scope, $rootScope, $http, $compile){
+function AsLoggerCtrl($scope, $rootScope, $http, $compile) {
 
     // Default values...
     $rootScope.isLoading = false;
@@ -7,23 +6,36 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
     $scope.accountInfo = '';
     $scope.username = '';
     $scope.isLoggedIn = false;
-    $scope.selectedPage = '';
     $scope.selectedTag = 'all';
     $scope.selectedHost = 'all';
-    $scope.logLevel =  {value: 0, label: 'debug'};
+    $scope.selectedPage = '';
+
+    $scope.logLevel = {
+        value: 0,
+        label: 'debug'
+    };
     $rootScope.logs = [];
 
-    $scope.logLevels = [
-        {value: 0, label: 'debug'},
-        {value: 1, label: 'info'},
-        {value: 2, label: 'warn'},
-        {value: 3, label: 'error'},
-        {value: 4, label: 'fatal'}
-    ];
+    $scope.logLevels = [{
+        value: 0,
+        label: 'debug'
+    }, {
+        value: 1,
+        label: 'info'
+    }, {
+        value: 2,
+        label: 'warn'
+    }, {
+        value: 3,
+        label: 'error'
+    }, {
+        value: 4,
+        label: 'fatal'
+    }];
 
-    $scope.levelTagToValue = function(label){
-        for (var i = 0; i<$scope.logLevels.length; i++){
-            if ($scope.logLevels[i].label == label){
+    $scope.levelTagToValue = function(label) {
+        for (var i = 0; i < $scope.logLevels.length; i++) {
+            if ($scope.logLevels[i].label == label) {
                 return $scope.logLevels[i].value;
             }
         }
@@ -33,7 +45,7 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
      * Check to see if the log level string is great than the current log level
      * @param levelString
      */
-    $scope.isLogLevelGreater = function(levelString){
+    $scope.isLogLevelGreater = function(levelString) {
         return ($scope.levelTagToValue(levelString) >= $scope.logLevel.value);
     }
 
@@ -43,11 +55,12 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
     /**
      * Get the app version and environment
      */
-    function getVersion(){
 
-        $http.get('/api/version').success(function(data){
+    function getVersion() {
 
-            if (data.result == 'ok'){
+        $http.get('/api/version').success(function(data) {
+
+            if (data.result == 'ok') {
                 $scope.version = data.version;
                 $scope.environment = data.environment;
             }
@@ -60,11 +73,11 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     getVersion();
 
-    function getAccountInfo(){
+    function getAccountInfo() {
 
-        $http.get('/api/account').success(function(data){
+        $http.get('/api/account').success(function(data) {
 
-            if (data.result == 'ok'){
+            if (data.result == 'ok') {
                 $scope.accountInfo = data.account;
             }
             else {
@@ -74,11 +87,11 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     }
 
-    function getTags(){
+    function getTags() {
 
-        $http.get('/api/tags').success(function(data){
+        $http.get('/api/tags').success(function(data) {
 
-            if (data.result == 'ok'){
+            if (data.result == 'ok') {
                 $scope.tags = data.tags;
             }
             else {
@@ -88,11 +101,11 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     }
 
-    function getHosts(){
+    function getHosts() {
 
-        $http.get('/api/hosts').success(function(data){
+        $http.get('/api/hosts').success(function(data) {
 
-            if (data.result == 'ok'){
+            if (data.result == 'ok') {
                 $scope.hosts = data.hosts;
             }
             else {
@@ -103,17 +116,17 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
     }
 
     /**
-    * Timer to get whatever data is relevant based on current page
-    */
-    setInterval(function(){
-        if ($scope.selectedPage == 'logs'){
+     * Timer to get whatever data is relevant based on current page
+     */
+    setInterval(function() {
+        if ($scope.selectedPage == 'logs' && $scope.getLiveLogs) {
             //console.log('getting logs');
-            $scope.getLogs()            
+            $scope.getLogs()
         }
     }, 5000);
 
-    setInterval(function(){
-        if ($scope.selectedPage == 'logs'){
+    setInterval(function() {
+        if ($scope.selectedPage == 'logs' && $scope.getLiveLogs) {
             getTags();
             getHosts();
         }
@@ -125,7 +138,7 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
     /**
      * Once a user is logged in, get all the data that we need
      */
-    $scope.initialize = function(){
+    $scope.initialize = function() {
 
         $scope.setPage('logs');
 
@@ -140,72 +153,135 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
     }
 
     // ////////////////////////////////////////////////////////////////////////////////
+    //
+    // Getting logs
+    //
+    // ////////////////////////////////////////////////////////////////////////////////
 
-    $scope.currentLogPage = 1;
+    var HOURS_PER_PAGE = 3 * 60 * 60 * 1000; /* ms */
+
+    $scope.pageDateRanges = null;
+    $scope.currentLogPage = 0;
     $scope.logPageSize = 25;
-    $scope.numberLogPages = 0;
+    $scope.lastSync = null;
 
-    $scope.incLoggerPage = function(){
-        $scope.currentLogPage++;
-        console.log($scope.currentLogPage + ", " + $scope.numberLogPages);
-        if ($scope.currentLogPage > $scope.numberLogPages) {
-            $scope.currentLogPage = $scope.numberLogPages;
-        }
-        else {
-            $scope.getLogs();
-        }
-    };
+    // ////////////////////////////////////////////////////////////////////////////////
 
-    $scope.decLoggerPage = function(){
+    var resetLogs = function(){
+        $rootScope.logs = [];
+        $scope.lastSync = null;
+    }
+
+    // ////////////////////////////////////////////////////////////////////////////////
+
+    var resetPageDateRanges = function(){
+        $scope.pageDateRanges = [{
+            start: new Date(0), //new Date(Date.now() - HOURS_PER_PAGE),
+            end: new Date()
+        }];
+        $scope.currentLogPage = 0;
+    }
+
+    resetPageDateRanges();
+
+
+    // ////////////////////////////////////////////////////////////////////////////////
+
+    $scope.getNewerLogs = function() {
+
         $scope.currentLogPage--;
-        console.log($scope.currentLogPage + ", " + $scope.numberLogPages);
-        if ($scope.currentLogPage < 1) {
-            $scope.currentLogPage = $scope.numberLogPages = 1;
+
+        if ($scope.currentLogPage < 0) {
+            $scope.currentLogPage = 0;
         }
         else {
-            $scope.getLogs();
+            console.log("Page " + $scope.currentLogPage, $scope.pageDateRanges[$scope.currentLogPage]);
+            resetLogs();
+            if ($scope.getLiveLogs){
+                $scope.getLogs();            
+            }
+            else {
+                $scope.getLogsBySearch();            
+            }
+        }
+
+    };
+
+    // ////////////////////////////////////////////////////////////////////////////////
+
+    $scope.getOlderLogs = function() {
+
+        $scope.currentLogPage++;
+
+        if (!$scope.pageDateRanges[$scope.currentLogPage]) {
+            $scope.pageDateRanges[$scope.currentLogPage] = {};
+        }
+
+        var endDate = new Date($scope.pageDateRanges[$scope.currentLogPage - 1].start);
+        var startDate = new Date(endDate.getTime() - HOURS_PER_PAGE);
+
+        $scope.pageDateRanges[$scope.currentLogPage] = {
+            start: startDate,
+            end: endDate
+        };
+
+        resetLogs();
+        if ($scope.getLiveLogs){
+            $scope.getLogs();            
+        }
+        else {
+            $scope.getLogsBySearch();            
         }
     };
+
+    // ////////////////////////////////////////////////////////////////////////////////
 
     $scope.lastSync = new Date(0);
 
-    $scope.getLogs = function(){
+    $scope.getLogs = function() {
+
+        $scope.getLiveLogs = true;
+
+        if (!$scope.pageDateRanges){
+            alert('reseting date ranges!');
+            resetPageDateRanges();
+        }
 
         $rootScope.isLoading = true;
 
         //app.get('/api/logs/:level/:tag/:pageSize/:page/:host', adminApi.getLogs);
 
-        //var url = '/api/logs/'+$scope.logLevel.label+'/'+$scope.selectedTag+'/'+$scope.logPageSize+'/'+$scope.currentLogPage+'/'+$scope.selectedHost+'/'+$scope.lastSync;
-        var url = '/api/logs/'+$scope.logLevel.label+'/'+$scope.selectedTag+'/'+$scope.selectedHost+'/'+$scope.lastSync;
+        // If we're on the first page, keep pushing out the end date to now!
+        if ($scope.currentLogPage == 0){
+            $scope.pageDateRanges[$scope.currentLogPage].end = new Date();    
+        }
+
+        $scope.pageStartDate = $scope.pageDateRanges[$scope.currentLogPage].start;
+        $scope.pageEndDate = $scope.pageDateRanges[$scope.currentLogPage].end;
+
+        var startDate = $scope.pageStartDate;
+
+        // Set the start date to use as last sync flag so we don't get duplicated data
+        if ($scope.lastSync) {
+            startDate = $scope.lastSync;
+        }
+
+        // http://localhost:3010/api/logs/debug/all/all/Fri%20Jan%2031%202014%2010:06:58%20GMT-0500%20(EST)/Fri%20Jan%2031%202014%2011:06:58%20GMT-0500%20(EST)
+        // http://localhost:3010/api/logs/debug/all/all/Wed Dec 31 1969 19:00:00 GMT-0500 (EST)/Fri Jan 31 2014 11:36:25 GMT-0500 (EST)
+
+        var url = '/api/logs/' + $scope.logLevel.label + '/' + $scope.selectedTag + '/' + $scope.selectedHost + '/' + startDate + '/' + $scope.pageEndDate;
         var queryTime = new Date();
 
-        $http.get(url).success(function(data){
+        console.log(url);
+
+        $http.get(url).success(function(data) {
 
             $rootScope.isLoading = false;
+
             $scope.lastSync = queryTime;
 
-            if (data.result == 'ok'){
-
-                // Keep the list under control by removing any entries over the maximum number
-                if ($rootScope.logs.length > 100){
-                    for (var i=100; i<$rootScope.logs.length; i++){
-                        $rootScope.logs.pop(i);    
-                    }
-                }
-
-                $rootScope.logs = data.logs.concat($rootScope.logs);
-
-                //console.log($scope.logPageSize + ', ' + data.total);
-
-                $scope.numberLogPages = Math.floor(data.total / $scope.logPageSize);
-                if (data.total % $scope.logPageSize > 0) $scope.numberLogPages++;
-
-                //console.log('Found ' + $rootScope.logs.length + ' logs');
-
-                //console.log('Div = ' + (data.total / $scope.logPageSize));
-                //console.log('Remainder = ' + ($scope.logPageSize % data.total));
-
-                setTimeout(function(){$('.logTooltip').tooltip({html:true});}, 250);
+            if (data.result == 'ok') {
+                _processLogs(data.logs);
             }
             else {
                 console.error("Error getting logs");
@@ -218,28 +294,21 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     $scope.searchTerm = "";
 
-    $scope.getLogsBySearch = function(){
+    $scope.getLogsBySearch = function() {
+
+        $scope.getLiveLogs = false;
+
+        resetLogs();
+        resetPageDateRanges();
 
         $rootScope.isLoading = true;
 
-        $http.get('/api/search/'+$scope.searchTerm).success(function(data){
+        $http.get('/api/search/' + $scope.searchTerm).success(function(data) {
 
             $rootScope.isLoading = false;
 
-            if (data.result == 'ok'){
-
-                $rootScope.logs = data.logs;
-                console.log($scope.logPageSize + ', ' + data.total);
-
-                $scope.numberLogPages = Math.floor(data.total / $scope.logPageSize);
-                if (data.total % $scope.logPageSize > 0) $scope.numberLogPages++;
-
-                //console.log('Found ' + $rootScope.logs.length + ' logs');
-
-                //console.log('Div = ' + (data.total / $scope.logPageSize));
-                //console.log('Remainder = ' + ($scope.logPageSize % data.total));
-
-                setTimeout(function(){$('.logTooltip').tooltip({html:true});}, 250);
+            if (data.result == 'ok') {
+                _processLogs(data.logs);
             }
             else {
                 console.error("Error getting logs");
@@ -248,20 +317,82 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     };
 
+    // ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    $scope.selectTag = function(tag) {
+        $scope.selectedTag = tag;
+        resetLogs();
+        resetPageDateRanges();        
+        $scope.getLogs();
+    }
+
+    $scope.setLogLevel = function(level) {
+        $scope.logLevel = level;
+        resetLogs();
+        resetPageDateRanges();        
+        $scope.getLogs();
+    }
+
+    $scope.selectHost = function(host) {
+        $scope.selectedHost = host;
+        resetLogs();
+        resetPageDateRanges();        
+        $scope.getLogs();
+    }
+
     // ////////////////////////////////////////////////////////////////////////////////
 
-    $scope.deleteLogs = function(){
+    var _processLogs = function(logs){
+
+        if (!logs || logs.length == 0){
+            console.warn('no results!');
+            return;
+        }
+
+        if ($rootScope.logs.length == 0){
+            // This is the first run for the current settings, so lets get the oldest date from the returned logs and set that to the start date of this page
+            $scope.pageDateRanges[$scope.currentLogPage].start = logs[logs.length-1].modified;
+            $scope.pageStartDate = $scope.pageDateRanges[$scope.currentLogPage].start;
+        }
+
+        $rootScope.logs = logs.concat($rootScope.logs);
+
+        var MAX_NO_PER_PAGE = 200;
+        
+        // Keep the list under control by removing any entries over the maximum number and push everything else to an older page
+        if ($rootScope.logs.length > MAX_NO_PER_PAGE) {
+            for (var i = MAX_NO_PER_PAGE; i < $rootScope.logs.length; i++) {
+                if (i == MAX_NO_PER_PAGE) {
+                    $scope.pageDateRanges[$scope.currentLogPage].end = $rootScope.logs[i].modified;
+                    $scope.pageDateRanges.start = $rootScope.logs[i].modified;
+                }
+                $rootScope.logs.pop(i);
+            }
+        }
+
+        setTimeout(function() {
+            $('.logTooltip').tooltip({
+                html: true
+            });
+        }, 250);
+
+
+    }
+
+    // ////////////////////////////////////////////////////////////////////////////////
+
+    $scope.deleteLogs = function() {
 
         ArsenicLogger.confirmDialog({
             message: "Are you sure, this can not be undone?",
-            onYes: function(){
+            onYes: function() {
                 $rootScope.isLoading = true;
 
-                $http.delete('/api/logs').success(function(data){
+                $http.delete('/api/logs').success(function(data) {
 
                     $rootScope.isLoading = false;
 
-                    if (data.result == 'ok'){
+                    if (data.result == 'ok') {
                         $rootScope.logs = [];
                         $scope.initialize();
                     }
@@ -283,19 +414,19 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
     /**
      * Get stats on the amount of storage size being used
      */
-    $scope.getStorageUsage = function(){
+    $scope.getStorageUsage = function() {
 
         //{"result":"ok","noDocs":13,"dataSize":7632,"storageSize":36864}
 
         $rootScope.isLoading = true;
 
-        $http.get('/api/stats').success(function(data){
+        $http.get('/api/stats').success(function(data) {
 
             $rootScope.isLoading = false;
 
-            if (data.result == 'ok'){
+            if (data.result == 'ok') {
                 $scope.noDocuments = data.noDocs;
-                $scope.storageSize = data.storageSize / (1024*1024);
+                $scope.storageSize = data.storageSize / (1024 * 1024);
                 $scope.dataSize = data.dataSize;
                 //console.log($scope.usage );
                 $scope.lastUsageSync = new Date(); // Set sync date to now
@@ -319,24 +450,24 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
         'Memory Used (Percent of Available)'
     ]
 
-    $scope.updateChartMode = function(mode){
+    $scope.updateChartMode = function(mode) {
         $scope.chartMode = mode;
         AsLoggerCharts.updateMemoryChart();
     }
 
-    $scope.getMemoryData = function(callback){
+    $scope.getMemoryData = function(callback) {
 
         $rootScope.isLoading = true;
 
-        var url = '/api/memory/'+$scope.logLevel.label+'/'+$scope.selectedTag+'/'+$scope.selectedHost;
+        var url = '/api/memory/' + $scope.logLevel.label + '/' + $scope.selectedTag + '/' + $scope.selectedHost;
 
         console.log('getMemoryData - url = ' + url);
 
-        $http.get(url).success(function(data){
+        $http.get(url).success(function(data) {
 
             $rootScope.isLoading = false;
 
-            if (data.result == 'ok'){
+            if (data.result == 'ok') {
                 $scope.usage = data.memoryUsage;
                 //console.log($scope.usage );
                 prepareMemoryData(callback);
@@ -348,11 +479,11 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     };
 
-    function prepareMemoryData(callback){
+    function prepareMemoryData(callback) {
 
         var chartData = [];
 
-        for (var k=0; k<$scope.hosts.length; k++){
+        for (var k = 0; k < $scope.hosts.length; k++) {
 
             var series = {
                 values: getMemoryDataForHost($scope.hosts[k]),
@@ -362,21 +493,29 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
             chartData.push(series);
         }
 
-        function getMemoryDataForHost(host){
+        function getMemoryDataForHost(host) {
 
             var data = [];
 
-            for (var i=0; i<$scope.usage.length; i++){
-                if ($scope.usage[i].hostname == host){
+            for (var i = 0; i < $scope.usage.length; i++) {
+                if ($scope.usage[i].hostname == host) {
 
                     var tm = new Date($scope.usage[i].modified).getTime();
                     var val = 0;
 
-                    switch($scope.chartMode){
-                        case 'CPU Load': val = 100 * Math.floor($scope.usage[i].cpu); break;
-                        case 'Total Memory Available (MB)': val = $scope.usage[i].memoryTotal / (1024*1024); break;
-                        case 'Memory Used (MB)': val = $scope.usage[i].memory / (1024*1024); break;
-                        case 'Memory Used (Percent of Available)': val = Math.floor(100 * $scope.usage[i].memory / $scope.usage[i].memoryTotal); break;
+                    switch ($scope.chartMode) {
+                        case 'CPU Load':
+                            val = 100 * Math.floor($scope.usage[i].cpu);
+                            break;
+                        case 'Total Memory Available (MB)':
+                            val = $scope.usage[i].memoryTotal / (1024 * 1024);
+                            break;
+                        case 'Memory Used (MB)':
+                            val = $scope.usage[i].memory / (1024 * 1024);
+                            break;
+                        case 'Memory Used (Percent of Available)':
+                            val = Math.floor(100 * $scope.usage[i].memory / $scope.usage[i].memoryTotal);
+                            break;
                     }
 
                     data.push([tm, val]);
@@ -431,23 +570,25 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
     // ////////////////////////////////////////////////////////////////////////////////
 
     // Check the session is still valid every 60 seconds
-    setInterval(function(){$scope.checkSession()}, 30000);
+    setInterval(function() {
+        $scope.checkSession()
+    }, 30000);
 
     /**
      * Ask the server if the current session is still valid
      */
-    $scope.checkSession = function(){
+    $scope.checkSession = function() {
 
-        $http.get('/api/auth/check').success(function(data){
+        $http.get('/api/auth/check').success(function(data) {
 
             console.log('checkSession', data);
 
-            if (data.result == 'ok'){
+            if (data.result == 'ok') {
                 $scope.apiKey = data.apiKey;
                 $scope.username = data.username;
                 $scope.userlevel = data.level;
-                $scope.isLoggedIn = true;
-                if ($scope.selectedPage == ''){
+                $scope.isLoggedIn = true;            
+                if ($scope.selectedPage == '') {
                     $scope.initialize();
                 }
             }
@@ -462,20 +603,6 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
     // Check session is valid now
     $scope.checkSession();
 
-    // ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    $scope.selectTag = function(tag){
-        $scope.selectedTag = tag;
-        $scope.getLogs();
-    }
-
-    $scope.setLogLevel = function(level){
-        $scope.logLevel = level;
-    }
-
-    $scope.selectHost = function(host){
-        $scope.selectedHost = host;
-    }
 
     // ////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -488,11 +615,11 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
      * @param stack
      * @returns {string}
      */
-    $scope.stackToString = function(stack){
+    $scope.stackToString = function(stack) {
 
         var txt = "<div style='text-align: left; font-size: 10px; color: lightgreen'>";
-        stack.forEach(function(obj){
-            txt += obj.fileName + ":" + obj.line + ", "+ obj.functionName + "<br/>";
+        stack.forEach(function(obj) {
+            txt += obj.fileName + ":" + obj.line + ", " + obj.functionName + "<br/>";
         });
         txt += "</div>";
 
@@ -501,9 +628,9 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    $scope.loadHTMLFragment = function(targetDiv, pageFragmentURL){
+    $scope.loadHTMLFragment = function(targetDiv, pageFragmentURL) {
         $rootScope.isLoading = true;
-        $http.get(pageFragmentURL).success(function(data){
+        $http.get(pageFragmentURL).success(function(data) {
             $rootScope.isLoading = false;
             $(targetDiv).html($compile(data)($scope));
         });
@@ -513,14 +640,14 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
      * Store the current page, options are; 'dashboard', 'settings'
      * @param page
      */
-    $scope.setPage = function(page){
+    $scope.setPage = function(page) {
 
         $scope.selectedPage = page;
 
         $('#MenuItems li').removeClass('active');
         $('.page-content').empty();
 
-        switch(page){
+        switch (page) {
 
             case 'logs':
                 $('#LogsMenuItem').addClass('active');
@@ -546,17 +673,15 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile){
 
     // ///////////////////////////////////////////////////////////////////////////////////////
 
-    $rootScope.formatDate = function(date){
+    $rootScope.formatDate = function(date) {
         if (!date) date = new Date(0);
         return moment(date).format('MMM Do YYYY, h:mm a');
     }
 
     // ///////////////////////////////////////////////////////////////////////////////////////
 
-    $rootScope.formatTime = function(date){
+    $rootScope.formatTime = function(date) {
         if (!date) date = new Date(0);
         return moment(date).format('h:mm:ss a');
     }
 }
-
-

@@ -6,9 +6,9 @@
 
         <button type="button" disabled="disabled" class="btn btn-default"><span class="glyphicon glyphicon-tag"></span>&nbsp;Tag</button>
 
-        <div class="btn-group">
+        <div class="btn-group" >
 
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-class="{'disabled': getLiveLogs == false}">
                 {{selectedTag}}
                 <span class="caret"></span>
             </button>
@@ -40,7 +40,7 @@
 
         <div class="btn-group">
 
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-class="{'disabled': getLiveLogs == false}">
                 {{selectedHost}}
                 <span class="caret"></span>
             </button>
@@ -72,7 +72,7 @@
 
         <div class="btn-group">
 
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-class="{'disabled': getLiveLogs == false}">
                 <span ng-class="{'text-success': logLevel.label == 'debug', 'text-info': logLevel.label == 'info', 'text-warning': logLevel.label == 'warn', 'text-danger': logLevel.label == 'error' || logLevel.label == 'fatal'}">
                     {{logLevel.label}}
                 </span>
@@ -94,7 +94,15 @@
 
     </div>
 
-    <button class='btn btn-default pull-right' style='margin-left: 10px' ng-click="getLogs()"><span class="glyphicon glyphicon-refresh"></span>&nbsp;{{lastSync | date:'HH:mm:ss'}}</button>
+    <button class='btn btn-success pull-right' ng-class="{'hidden': getLiveLogs == true}" style='margin-left: 10px' ng-click="getLogs()">
+        <span class="glyphicon glyphicon-play"></span>
+        &nbsp;Play
+    </button>
+    
+    <button class='btn btn-default pull-right' ng-class="{'hidden': getLiveLogs == false}" style='margin-left: 10px' ng-click="getLogs()">
+        <span class="glyphicon glyphicon-refresh"></span>
+        &nbsp;{{lastSync | date:'HH:mm:ss'}}
+    </button>
 
 </div>
 
@@ -109,12 +117,19 @@
     </div>
 
     <div class="col-md-6">
-    <!--
         <div class="btn-toolbar pull-right">
-            <button class="btn btn-default" ng-class="{'disabled': currentLogPage == numberLogPages}" ng-click="incLoggerPage()">&larr; Older</button>
-            <button class="btn btn-default" ng-class="{'disabled': currentLogPage == 1}" ng-click="decLoggerPage()">Newer &rarr;</button>
+            
+            <button class="btn btn-default" ng-class="{'disabled': currentLogPage == numberLogPages, 'hidden': getLiveLogs == false}" ng-click="getOlderLogs()">
+                &larr; Older 
+                <span class='text-info pageTimeStopsText'>{{pageStartDate | date:'HH:mm:ss'}}</span>
+            </button>
+
+            <button class="btn btn-default" ng-class="{'disabled': currentLogPage == 0, 'hidden': getLiveLogs == false}" ng-click="getNewerLogs()">
+                <span class='text-info pageTimeStopsText'>{{pageEndDate | date:'HH:mm:ss'}}</span>
+                &nbsp;Newer &rarr;
+            </button>
+
         </div>
-        -->
     </div>
 
 </div>

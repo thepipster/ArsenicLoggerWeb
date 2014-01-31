@@ -105,11 +105,11 @@ app.get('/api/account', adminApi.getAccountInfo);
 app.get('/api/stats', adminApi.getLogDiscUsage)
 app.delete('/api/logs', adminApi.deleteLogs);
 app.get('/api/search/:keyword', adminApi.searchLogs);
-app.get('/api/logs/:lastSync', adminApi.getLogs);
+//app.get('/api/logs/:startDate/:endDate', adminApi.getLogs);
 //app.get('/api/logs/:level', adminApi.getLogs);
 //app.get('/api/logs/:level/:tag', adminApi.getLogs);
-app.get('/api/logs/:level/:tag/:lastSync', adminApi.getLogs);
-app.get('/api/logs/:level/:tag/:host/:lastSync', adminApi.getLogs);
+//app.get('/api/logs/:level/:tag/:startDate/:endDate', adminApi.getLogs);
+app.get('/api/logs/:level/:tag/:host/:startDate/:endDate', adminApi.getLogs);
 app.get('/api/tags', adminApi.getTags);
 app.get('/api/hosts', adminApi.getHosts);
 
