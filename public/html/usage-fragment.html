@@ -98,9 +98,10 @@
                     chart.xAxis
                             .showMaxMin(false)
                             .tickFormat(function(d) { return d3.time.format('%c')(new Date(d)) })
-                            .ticks(d3.time.minute, 15);
-                    //.tickFormat(function(d) { return d3.time.format('%x')(new Date(d)) });
-                    //.tickFormat(d3.format(',.2f'));
+                            .ticks(d3.time.minute, 15)
+                            //.tickFormat(function (d) { return ''; });
+                            //.tickFormat(function(d) { return d3.time.format('%x')(new Date(d)) });
+                            //.tickFormat(d3.format(',.2f'));
 
                     chart.yAxis
                             .tickFormat(d3.format(',.2f'));

@@ -272,7 +272,7 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile) {
         var url = '/api/logs/' + $scope.logLevel.label + '/' + $scope.selectedTag + '/' + $scope.selectedHost + '/' + startDate + '/' + $scope.pageEndDate;
         var queryTime = new Date();
 
-        console.log(url);
+        //console.log(url);
 
         $http.get(url).success(function(data) {
 
@@ -345,7 +345,7 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile) {
     var _processLogs = function(logs){
 
         if (!logs || logs.length == 0){
-            console.warn('no results!');
+            console.log('no results!');
             return;
         }
 
@@ -580,8 +580,6 @@ function AsLoggerCtrl($scope, $rootScope, $http, $compile) {
     $scope.checkSession = function() {
 
         $http.get('/api/auth/check').success(function(data) {
-
-            console.log('checkSession', data);
 
             if (data.result == 'ok') {
                 $scope.apiKey = data.apiKey;

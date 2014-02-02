@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
+    <meta name="description" content="Remote logging service for Node.js">
     <meta name="author" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
@@ -72,6 +72,10 @@
             font-size: 10px;
         }
 
+        .tick text{
+            display: none;
+        }
+
     </style>
 
 </head>
@@ -131,7 +135,7 @@
 
                     <h1>Login</h1>
 
-                    <p class="lead">Welcome to ArsenicLogger, the simple remote logging tool.</p>
+                    <p class="lead">Welcome to ArsenicLogger, the simple remote logging tool for Node.js. For free.</p>
 
                     <form role="form" action="/api/auth/login" method="post">
                         <div class="form-group">
@@ -209,8 +213,8 @@
         </div>
 
         <div id="footer" align="center">
-            <small>&copy; 2013 ArsenicSoup, LLC. All rights reserved.</small>
-            <small class='pull-right'>{{version}}-{{environment}}</small>
+            <small>&copy; 2014 ArsenicSoup, LLC. All rights reserved.</small>
+            <small class='pull-right'>{{version}}</small>
         </div> <!-- end footer -->
 
     </div><!-- /.container -->
